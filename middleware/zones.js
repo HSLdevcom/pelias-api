@@ -9,6 +9,7 @@ function setup(prefix) {
     Lahti: require('./config/lahti_zone_areas_20201120.json'),
     Kuopio: require('./config/kuopio_zone_areas_20201120.json'),
     Hameenlinna: require('./config/hml_zone_areas_20210211.json'),
+    Lappeenranta: require('./config/lpr_zone_areas_20211008.json'),
   };
 
   // precompute bounding boxes to optimize test speed
