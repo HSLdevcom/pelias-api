@@ -40,23 +40,24 @@ function dedupeResults(req, res, next) {
     // since the order in which Elasticsearch returns identical text matches is arbitrary
     // of course, if the new one is preferred we should replace previous with new
     else if( isPreferred( unique[dupeIndex], hit ) ) {
-
+      let dupe = unique[dupeIndex];
       // replace previous dupe item with current hit
       unique[dupeIndex] = hit;
 
       // logging
       logger.debug('[dupe][replacing]', {
         query: req.clean.text,
-        previous: unique[dupeIndex].source,
+        previous: field.getStringValue(dupe.name.default) + ' ' + dupe.source + ':' + dupe._id,
         hit: field.getStringValue(hit.name.default) + ' ' + hit.source + ':' + hit._id
       });
     }
 
     // if not preferred over existing, just log and continue
     else {
+      let dupe = unique[dupeIndex];
       logger.debug('[dupe][skipping]', {
         query: req.clean.text,
-        previous: unique[dupeIndex].source,
+        previous: field.getStringValue(dupe.name.default) + ' ' + dupe.source + ':' + dupe._id,
         hit: field.getStringValue(hit.name.default) + ' ' + hit.source + ':' + hit._id
       });
     }
