@@ -27,6 +27,13 @@ function isLayerDifferent(item1, item2){
 }
 
 /**
+ * Compare GTFS identity. All stops/stations are unique
+ */
+function isStopSourceDifferent(item1, item2) {
+  return item1.source.indexOf('gtfs') !== -1 && item2.source.indexOf('gtfs') !== -1;
+}
+
+/**
  * Compare the parent properties if they exist.
  * Returns false if the objects are the same, else true.
  */
@@ -158,6 +165,7 @@ function isLocationDifferent(item1, item2) {
   if( isNameDifferent( item1, item2 ) ){ return true; }
   if( isAddressDifferent( item1, item2 ) ){ return true; }
   if( isLocationDifferent( item1, item2 ) ){ return true; }
+  if( isStopSourceDifferent( item1, item2 ) ){ return true; }
 
   return false;
 }
