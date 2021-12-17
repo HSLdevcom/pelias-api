@@ -19,15 +19,17 @@ var jw  = function (s1, s2) {
     return 1;
   }
 
-  var range     = (Math.floor(Math.max(s1.length, s2.length) / 2)) - 1,
+  var range = (Math.floor(Math.max(s1.length, s2.length) / 2)) - 1,
       s1Matches = new Array(s1.length),
       s2Matches = new Array(s2.length);
 
-  for ( i = 0; i < s1.length; i++ ) {
-    var low  = (i >= range) ? i - range : 0,
+  var i, j;
+
+  for (i = 0; i < s1.length; i++) {
+    let low  = (i >= range) ? i - range : 0,
         high = (i + range <= s2.length) ? (i + range) : (s2.length - 1);
 
-    for ( j = low; j <= high; j++ ) {
+    for (j = low; j <= high; j++ ) {
       if ( s1Matches[i] !== true && s2Matches[j] !== true && s1[i] === s2[j] ) {
         ++m;
         s1Matches[i] = s2Matches[j] = true;
@@ -42,11 +44,12 @@ var jw  = function (s1, s2) {
   }
 
   // Count the transpositions.
-  var k = n_trans = 0;
+  let k = 0;
+  let n_trans = 0;
 
-  for ( i = 0; i < s1.length; i++ ) {
+  for (i = 0; i < s1.length; i++ ) {
     if ( s1Matches[i] === true ) {
-      for ( j = k; j < s2.length; j++ ) {
+      for (j = k; j < s2.length; j++ ) {
         if ( s2Matches[j] === true ) {
           k = j + 1;
           break;
@@ -59,7 +62,7 @@ var jw  = function (s1, s2) {
     }
   }
 
-  var weight = (m / s1.length + m / s2.length + (m - (n_trans / 2)) / m) / 3,
+  let weight = (m / s1.length + m / s2.length + (m - (n_trans / 2)) / m) / 3,
       l = 0,
       p = 0.1;
 
@@ -72,8 +75,7 @@ var jw  = function (s1, s2) {
   }
 
   return weight;
-}
-
+};
 
 var cachedPermutation = {}; // one item cache
 
@@ -87,7 +89,7 @@ function heapPermutation(a, size, n, result)
     heapPermutation(a, size - 1, n, result);
 
     // if size is odd, swap 0th i.e (first) and (size-1)th i.e (last) element
-    if (size % 2 == 1) {
+    if (size % 2 === 1) {
       let temp = a[0];
       a[0] = a[size - 1];
       a[size - 1] = temp;
@@ -131,7 +133,7 @@ function fuzzyMatch(text1, text2) {
     return score;
   }
 
-  if(words1.length<4 && words2.length<4) { // must limit the length, long permutations are too slow
+  if(words1.length<5 && words2.length<5) { // must limit the length, long permutations are too slow
     var perm1;
     var perm2 = [];
     if (cachedPermutation.key === text1) {
@@ -163,7 +165,6 @@ function fuzzyMatch(text1, text2) {
     var wordScore=0;
     var weightSum=0;
     var matched={};
-    var foo = '';
     words1.forEach(function(word1) {
       // find best matching yet unused word
       var bestScore=0, bestIndex;
@@ -181,12 +182,11 @@ function fuzzyMatch(text1, text2) {
       wordScore += l*bestScore; // weight by word len
       weightSum += l;
       matched[bestIndex]=true;
-      foo += words2[bestIndex];
     });
     // extra words just accumulate weight, not score
     for (var wi2 in words2) {
       if (!matched[wi2]) {
-        weightSum += words2[wi2].length;
+        weightSum ++;
       }
     }
     wordScore /= weightSum;
