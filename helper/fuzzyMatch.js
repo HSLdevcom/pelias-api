@@ -109,7 +109,20 @@ function _fuzzyMatch(text1, text2) {
   text1 = removeSpaces(text1);
   text2 = removeSpaces(text2);
 
-  return jw(text1, text2);
+  /* jaro-winkler does not like missing long tails. We want to favor perfectly missing start more than
+     equally long mismatching strings. Example: plain jw  rates:
+
+     Mikkelän koulu | Mikkelän koulu ja päiväkoti 0.9083333333333333
+     Mikkelän koulu | Koulumäki                   0.9162393162393162
+
+     Koulumäki is rated better which is totally counter intuitive
+  */
+  var score = jw(text1, text2);
+  if(false && text2.indexOf(text1) === 0) {
+    var key = text1.length/text2.length;
+    score = key + (1-key)*score; // interpolate towards max score 1.0
+  }
+  return score;
 }
 
 // Matching which considers word ordering insignificant.
@@ -133,7 +146,7 @@ function fuzzyMatch(text1, text2) {
     return score;
   }
 
-  if(words1.length<5 && words2.length<5) { // must limit the length, long permutations are too slow
+  if(words1.length<4 && words2.length<4) { // must limit the length, long permutations are too slow
     var perm1;
     var perm2 = [];
     if (cachedPermutation.key === text1) {
