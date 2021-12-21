@@ -118,7 +118,7 @@ function _fuzzyMatch(text1, text2) {
      Koulumäki is rated better which is totally counter intuitive
   */
   var score = jw(text1, text2);
-  if(false && text2.indexOf(text1) === 0) {
+  if(text2.indexOf(text1) === 0) {
     var key = text1.length/text2.length;
     score = key + (1-key)*score; // interpolate towards max score 1.0
   }
