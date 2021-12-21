@@ -43,7 +43,7 @@
       }
     },
     "textAnalyzer": "libpostal",
-    "sizePadding": 12,
+    "sizePadding": 14,
     "minConfidence": 0.2,
     "relativeMinConfidence": 0.6,
     "languageMatchThreshold": 0.4,
@@ -104,7 +104,7 @@
         "street": 0.2
       },
       "confidenceAddressParts": {
-        "number": {"parent":"address_parts", "field":"number", "numeric": true, "weight": 0.5},
+        "number": {"parent":"address_parts", "field":"number", "numeric": true, "weight": 0.2},
         "street": {"parent":"address_parts", "field":"street", "numeric": false, "weight": 2},
         "postalcode": {"parent":"address_parts", "field":"zip", "numeric": false, "weight": 1}
       },
