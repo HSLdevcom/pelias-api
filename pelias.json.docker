@@ -43,7 +43,7 @@
       }
     },
     "textAnalyzer": "libpostal",
-    "sizePadding": 12,
+    "sizePadding": 14,
     "minConfidence": 0.2,
     "relativeMinConfidence": 0.6,
     "languageMatchThreshold": 0.4,
