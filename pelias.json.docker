@@ -44,9 +44,9 @@
     },
     "textAnalyzer": "libpostal",
     "sizePadding": 14,
-    "minConfidence": 0.2,
-    "relativeMinConfidence": 0.6,
-    "languageMatchThreshold": 0.4,
+    "minConfidence": 0.8,
+    "relativeMinConfidence": 0.8,
+    "languageMatchThreshold": 0.8,
     "query": {
       "search": {
         "disableFallback": true,
