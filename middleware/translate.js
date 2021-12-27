@@ -85,7 +85,7 @@ function translateProp(lang, value, translations, name) {
 	}
       }
       if (newVal) {
-        logger.info('Translated ' + value + ' to ' + newVal);
+        logger.debug('Translated ' + value + ' to ' + newVal);
         break;
       }
     }

@@ -30,7 +30,7 @@ function addParsedVariablesToQueryVariables( clean, vs ){
 
   // ?
   else {
-    logger.warn( 'chaos monkey asks: what happens now?', {
+    logger.debug( 'chaos monkey asks: what happens now?', {
       params: clean
     });
   }
