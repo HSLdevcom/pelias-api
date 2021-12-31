@@ -14,7 +14,7 @@ var removeNumbers = stringUtils.removeNumbers;
 var languages = ['default'];
 var adminWeights;
 var minConfidence=0, relativeMinConfidence;
-var genitiveThreshold = 0.4;
+var genitiveThreshold = 0.8;
 
 // default configuration for address confidence check
 var confidenceAddressParts = {
@@ -298,7 +298,7 @@ function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
               checkAdminName(text, doc.street, name);
             }
           }
-          if (genitive && nameLen > 2 + textLen) {
+          if (nameLen > 2 + textLen) {
             check(name, admins, text);
             if (doc.street) {
               checkAdminName(name, doc.street, text);
