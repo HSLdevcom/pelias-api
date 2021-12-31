@@ -248,10 +248,12 @@ function computeConfidenceScore(req, hit) {
  * @returns {bool}
  */
 
-function checkLanguageNames(text, doc, stripNumbers, genitiveDoc, genitiveText) {
+function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
   var bestScore = 0;
   var bestName;
   var names = doc.name;
+  var textLen = text.length;
+  var parent = doc.parent || {};
 
   var checkNewBest = function(_text, name) {
     var score = fuzzy.match(_text, name);
@@ -279,25 +281,24 @@ function checkLanguageNames(text, doc, stripNumbers, genitiveDoc, genitiveText) 
   var checkLanguageNameArray =  function(namearr) {
     for (var i in namearr) {
       var name = normalize(namearr[i]);
-
       if(stripNumbers) {
         name = removeNumbers(name);
       }
+      var nameLen = name.length;
       var score = checkNewBest(text, name);
 
-      if (score > genitiveThreshold && (genitiveDoc || genitiveText)) { // don't prefix unless base match is OK
-        // prefix with parent admins to catch cases like 'kontulan r-kioski'
-        var parent = doc.parent || {};
+      if (score > genitiveThreshold && tryGenitive) { // don't prefix unless base match is OK
+        // prefix with parent admins to catch cases like 'kontulan r-kioski = r-kioski, kontula'
         for(var key in adminWeights) {
           var admins = parent[key];
           var check = Array.isArray(admins) ? checkAdminNames : checkAdminName;
-          if(genitiveDoc && text.length > 2 + name.length) { // Shortest admin prefix is 'ii '
+          if(textLen > 2 + nameLen) { // Shortest admin prefix is 'ii '
             check(text, admins, name);
             if (doc.street) { // try also street: 'helsinginkadun r-kioski'
               checkAdminName(text, doc.street, name);
             }
           }
-          if (genitiveText && name.length > 2 + text.length) {
+          if (genitive && nameLen > 2 + textLen) {
             check(name, admins, text);
             if (doc.street) {
               checkAdminName(name, doc.street, text);
@@ -334,33 +335,19 @@ function checkLanguageNames(text, doc, stripNumbers, genitiveDoc, genitiveText) 
  * @returns {number}
  */
 function checkName(text, parsedText, hit) {
+  var docIsVenue = hit.layer === 'venue' || hit.layer === 'stop' || hit.layer === 'station' || hit.layer === 'bikestation';
 
   // parsedText name should take precedence if available since it's the cleaner name property
-  if (check.assigned(parsedText) && (check.assigned(parsedText.name) || check.assigned(parsedText.query))) {
-    var name = parsedText.name || parsedText.query;
-    var docIsVenue = hit.layer === 'venue' || hit.layer === 'stop' || hit.layer === 'station' || hit.layer === 'bikestation';
+  var name = parsedText ? parsedText.name || parsedText.query : null;
+  if (name) {
     var searchIsVenue = !parsedText.street;
-    var bestScore = checkLanguageNames(name, hit, false, docIsVenue, searchIsVenue);
+    var bestScore = checkLanguageNames(name, hit, false, docIsVenue && searchIsVenue);
 
-    if (parsedText.regions && docIsVenue && bestScore > genitiveThreshold) {
-      // try approximated genitive form : tuomikirkko, tampere -> tampere tuomiokirkko
-      // exact genitive form is hard e.g. in finnish lang: turku->turun, lieto->liedon ...
-      parsedText.regions.forEach(function(region) {
-        region = removeNumbers(region);
-        if( name.indexOf(region) === -1 ) { // not already included
-          // try adding genitive just at doc side, query text already has it
-          var score = checkLanguageNames(region + ' ' + name, hit, false, true, false);
-          if (score > bestScore) {
-            bestScore = score;
-          }
-        }
-      });
-    }
     return(bestScore);
   }
 
   // if no parsedText check the full unparsed text value
-  return(checkLanguageNames(text, hit, false, true, true));
+  return(checkLanguageNames(text, hit, false, docIsVenue));
 }
 
 
@@ -433,7 +420,7 @@ function checkAddressPart(text, hit, key) {
   // special case: proper version can be stored in the name
   // we need this because street name currently stores only one language
   if(key==='street' && hit.name) {
-    var _score = checkLanguageNames(text[key], hit, true, false, false);
+    var _score = checkLanguageNames(text[key], hit, true, false);
     if(_score>score) {
       score = _score;
     }
