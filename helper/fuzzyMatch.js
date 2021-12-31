@@ -202,7 +202,7 @@ function fuzzyMatch(text1, text2) {
     }
     wordScore /= weightSum;
   }
-  wordScore *= 0.99; // add very small penalty from wrong word order
+  wordScore *= 0.999; // add very small penalty from wrong word order
   if(wordScore>score) {
     return wordScore;
   }
