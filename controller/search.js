@@ -93,7 +93,11 @@ function setup( apiConfig, esclient, query, should_execute ){
         }
         // set response data
         else {
-          res.data = docs;
+	  if (res.data && docs) {
+	    res.data = res.data.concat(docs);
+	  } else {
+            res.data = docs;
+	  }
           res.meta = meta || {};
           // store the query_type for subsequent middleware
           res.meta.query_type = renderedQuery.type;
