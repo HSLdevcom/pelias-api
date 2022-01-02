@@ -44,7 +44,8 @@ var queries = {
   structured_geocoding: require('../query/structured_geocoding'),
   reverse: require('../query/reverse'),
   autocomplete: require('../query/autocomplete'),
-  address_using_ids: require('../query/address_search_using_ids')
+  address_using_ids: require('../query/address_search_using_ids'),
+  fuzzy: require('../query/fuzzy')
 };
 
 /** ----------------------- controllers ----------------------- **/
@@ -295,6 +296,7 @@ function addRoutes(app, peliasConfig) {
       controllers.placeholder(placeholderService, geometricFiltersApply, placeholderIdsLookupShouldExecute),
       sanitizers.defer_to_addressit(shouldDeferToAddressIt),
       controllers.search(peliasConfig.api, esclient, queries.very_old_prod, oldProdQueryShouldExecute),
+      controllers.search(peliasConfig.api, esclient, queries.fuzzy, oldProdQueryShouldExecute),
       postProc.trimByGranularity(),
       postProc.distances('focus.point.'),
       postProc.localNamingConventions(),
