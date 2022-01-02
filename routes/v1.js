@@ -292,12 +292,7 @@ function addRoutes(app, peliasConfig) {
       controllers.libpostal(libpostalShouldExecute),
       controllers.placeholder(placeholderService, geometricFiltersApply, placeholderGeodisambiguationShouldExecute),
       controllers.placeholder(placeholderService, geometricFiltersApply, placeholderIdsLookupShouldExecute),
-//      controllers.search_with_ids(peliasConfig.api, esclient, queries.address_using_ids, searchWithIdsShouldExecute),
       controllers.placeholder(placeholderService, geometricFiltersApply, placeholderIdsLookupShouldExecute),
-//      controllers.search_with_ids(peliasConfig.api, esclient, queries.address_using_ids, searchWithIdsShouldExecute),
-      // 3rd parameter is which query module to use, use fallback first, then
-      //  use original search strategy if first query didn't return anything
-//      controllers.search(peliasConfig.api, esclient, queries.cascading_fallback, fallbackQueryShouldExecute),
       sanitizers.defer_to_addressit(shouldDeferToAddressIt),
       controllers.search(peliasConfig.api, esclient, queries.very_old_prod, oldProdQueryShouldExecute),
       postProc.trimByGranularity(),
@@ -306,7 +301,6 @@ function addRoutes(app, peliasConfig) {
       postProc.confidenceScores(peliasConfig.api),
       postProc.matchLanguage(peliasConfig.api),
       postProc.interpolate(interpolationService, interpolationShouldExecute),
-//      postProc.sortResponseData(require('pelias-sorting'), hasAdminOnlyResults),
       postProc.dedupe(),
       postProc.accuracy(),
       postProc.translate(),
@@ -322,7 +316,6 @@ function addRoutes(app, peliasConfig) {
       sanitizers.structured_geocoding.middleware(peliasConfig.api),
       middleware.selectLanguage(),
       middleware.calcSize(),
-//      controllers.structured_libpostal(structuredLibpostalService, structuredLibpostalShouldExecute),
       controllers.search(peliasConfig.api, esclient, queries.structured_geocoding, not(hasResponseDataOrRequestErrors)),
       postProc.trimByGranularityStructured(),
       postProc.distances('focus.point.'),
