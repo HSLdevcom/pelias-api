@@ -5,7 +5,7 @@ const _ = require('lodash');
 
 module.exports = (request, response) => {
 
-  var ptext = _.get(request, ['clean', 'parsed_text', 'name'], {});
+  var ptext = _.get(request, ['clean', 'parsed_text', 'name']);
   var text = ptext ||  _.get(request, ['clean', 'text']);
   var match = _.get(response, ['data', 0, 'name', 'default']);
 
