@@ -100,6 +100,9 @@ const hasNumberButNotStreet = all(
   not(hasParsedTextProperties.any('street'))
 );
 
+// don't run fuzzy query if good hit is already found
+const hasGoodMatch = require('../controller/predicates/hasGoodMatch');
+
 const serviceWrapper = require('pelias-microservice-wrapper').service;
 const PlaceHolder = require('../service/configurations/PlaceHolder');
 const PointInPolygon = require('../service/configurations/PointInPolygon');
@@ -241,6 +244,13 @@ function addRoutes(app, peliasConfig) {
     isAddressItParse
   );
 
+  // call very old prod query if addressit was the parser
+  const fuzzyQueryShouldExecute = all(
+    not(hasRequestErrors),
+    isAddressItParse,
+    not(hasGoodMatch)
+  );
+
   // get language adjustments if:
   // - there's a response
   // - theres's a lang parameter in req.clean
@@ -296,7 +306,7 @@ function addRoutes(app, peliasConfig) {
       controllers.placeholder(placeholderService, geometricFiltersApply, placeholderIdsLookupShouldExecute),
       sanitizers.defer_to_addressit(shouldDeferToAddressIt),
       controllers.search(peliasConfig.api, esclient, queries.very_old_prod, oldProdQueryShouldExecute),
-      controllers.search(peliasConfig.api, esclient, queries.fuzzy, oldProdQueryShouldExecute),
+      controllers.search(peliasConfig.api, esclient, queries.fuzzy, fuzzyQueryShouldExecute),
       postProc.trimByGranularity(),
       postProc.distances('focus.point.'),
       postProc.localNamingConventions(),
