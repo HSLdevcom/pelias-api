@@ -4,13 +4,8 @@ var defaults = require('./search_defaults');
 const textParser = require('./text_parser_pelias');
 const config = require('pelias-config').generate().api;
 
-var placeTypes = require('../helper/placeTypes');
+var adminFields = require('../helper/placeTypes');
 var views = { custom_boosts: require('./view/boost_sources_and_layers') };
-
-// region_a is also an admin field which can be identified by
-// the pelias_parser. this functionality was inherited from the
-// previous parser we used prior to the creation of pelias_parser.
-var adminFields = placeTypes.concat(['region_a']);
 
 if (config && config.query && config.query.search && config.query.search.defaults) {
   // merge external defaults if available
@@ -61,7 +56,6 @@ function generateQuery( clean ){
 
   // input text
   vs.var( 'input:name', clean.text );
-  vs.var( 'match_phrase:main:input', clean.text );
 
   // sources
   if( _.isArray(clean.sources) && !_.isEmpty(clean.sources) ) {

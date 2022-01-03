@@ -17,9 +17,6 @@ if (config && config.query && config.query.search && config.query.search.default
 //------------------------------
 var query = new peliasQuery.layout.FilteredBooleanQuery();
 
-// mandatory matches
-// query.score( peliasQuery.view.ngrams, 'must' );
-
 // scoring boost
 query.score( peliasQuery.view.phrase );
 query.score( peliasQuery.view.focus( peliasQuery.view.phrase ) );
@@ -56,7 +53,6 @@ function generateQuery( clean ){
 
   // input text
   vs.var( 'input:name', clean.text );
-  vs.var( 'match_phrase:main:input', clean.text );
   vs.var('multi_match:fuzziness', 'AUTO');
 
   // sources
@@ -74,8 +70,9 @@ function generateQuery( clean ){
     vs.var('input:categories', clean.categories);
   }
 
-  // size
+
   if( clean.querySize ) {
+    // use smaller fuzzy query to improve speed
     vs.var( 'size', Math.floor(0.5 + clean.querySize/2) );
   } else {
     vs.var( 'size', 5 );
