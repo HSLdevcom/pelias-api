@@ -232,7 +232,7 @@ function computeConfidenceScore(req, hit) {
   }
 
   // TODO: look at categories
-  logger.debug('### confidence', hit.confidence);
+  logger.info('### confidence', hit.confidence);
 
   return hit;
 }
@@ -319,7 +319,7 @@ function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
     }
     checkLanguageNameArray(nameArr);
   }
-  logger.debug('name confidence', bestScore, text, bestName);
+  logger.info('name confidence', bestScore, text, bestName);
 
   return bestScore;
 }
@@ -425,7 +425,7 @@ function checkAddressPart(text, hit, key) {
       score = _score;
     }
   }
-  logger.debug('address confidence for ' + key, score);
+  logger.info('address confidence for ' + key, score);
 
   return score;
 }

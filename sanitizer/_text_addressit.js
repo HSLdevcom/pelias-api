@@ -230,7 +230,7 @@ function parse(clean) {
 
   // if all we found was regions, ignore it as it is not enough information to make smarter decisions
   if( Object.keys(parsed_text).length === 1 && !_.isUndefined(parsed_text.regions) ){
-    logger.info('Ignoring address parser output, regions only', {
+    logger.debug('AddressIt parsed regions only', {
       parsed: parsed_text,
       params: clean
     });

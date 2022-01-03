@@ -50,7 +50,7 @@ function setup( apiConfig, esclient, query, should_execute ){
       body: renderedQuery.body
     };
 
-    logger.debug( '[ES req]', JSON.stringify(cmd) );
+    logger.info( '[ES req]', JSON.stringify(cmd) );
 
     operation.attempt((currentAttempt) => {
       const initialTime = debugLog.beginTimer(req, `Attempt ${currentAttempt}`);
