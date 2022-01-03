@@ -44,7 +44,8 @@ var queries = {
   structured_geocoding: require('../query/structured_geocoding'),
   reverse: require('../query/reverse'),
   autocomplete: require('../query/autocomplete'),
-  address_using_ids: require('../query/address_search_using_ids')
+  address_using_ids: require('../query/address_search_using_ids'),
+  fuzzy: require('../query/fuzzy')
 };
 
 /** ----------------------- controllers ----------------------- **/
@@ -98,6 +99,9 @@ const hasNumberButNotStreet = all(
   hasParsedTextProperties.any('number'),
   not(hasParsedTextProperties.any('street'))
 );
+
+// don't run fuzzy query if good hit is already found
+const hasGoodMatch = require('../controller/predicates/hasGoodMatch');
 
 const serviceWrapper = require('pelias-microservice-wrapper').service;
 const PlaceHolder = require('../service/configurations/PlaceHolder');
@@ -240,6 +244,13 @@ function addRoutes(app, peliasConfig) {
     isAddressItParse
   );
 
+  // call very old prod query if addressit was the parser
+  const fuzzyQueryShouldExecute = all(
+    not(hasRequestErrors),
+    isAddressItParse,
+    not(hasGoodMatch)
+  );
+
   // get language adjustments if:
   // - there's a response
   // - theres's a lang parameter in req.clean
@@ -292,21 +303,16 @@ function addRoutes(app, peliasConfig) {
       controllers.libpostal(libpostalShouldExecute),
       controllers.placeholder(placeholderService, geometricFiltersApply, placeholderGeodisambiguationShouldExecute),
       controllers.placeholder(placeholderService, geometricFiltersApply, placeholderIdsLookupShouldExecute),
-//      controllers.search_with_ids(peliasConfig.api, esclient, queries.address_using_ids, searchWithIdsShouldExecute),
       controllers.placeholder(placeholderService, geometricFiltersApply, placeholderIdsLookupShouldExecute),
-//      controllers.search_with_ids(peliasConfig.api, esclient, queries.address_using_ids, searchWithIdsShouldExecute),
-      // 3rd parameter is which query module to use, use fallback first, then
-      //  use original search strategy if first query didn't return anything
-//      controllers.search(peliasConfig.api, esclient, queries.cascading_fallback, fallbackQueryShouldExecute),
       sanitizers.defer_to_addressit(shouldDeferToAddressIt),
       controllers.search(peliasConfig.api, esclient, queries.very_old_prod, oldProdQueryShouldExecute),
+      controllers.search(peliasConfig.api, esclient, queries.fuzzy, fuzzyQueryShouldExecute),
       postProc.trimByGranularity(),
       postProc.distances('focus.point.'),
       postProc.localNamingConventions(),
       postProc.confidenceScores(peliasConfig.api),
       postProc.matchLanguage(peliasConfig.api),
       postProc.interpolate(interpolationService, interpolationShouldExecute),
-//      postProc.sortResponseData(require('pelias-sorting'), hasAdminOnlyResults),
       postProc.dedupe(),
       postProc.accuracy(),
       postProc.translate(),
@@ -322,7 +328,6 @@ function addRoutes(app, peliasConfig) {
       sanitizers.structured_geocoding.middleware(peliasConfig.api),
       middleware.selectLanguage(),
       middleware.calcSize(),
-//      controllers.structured_libpostal(structuredLibpostalService, structuredLibpostalShouldExecute),
       controllers.search(peliasConfig.api, esclient, queries.structured_geocoding, not(hasResponseDataOrRequestErrors)),
       postProc.trimByGranularityStructured(),
       postProc.distances('focus.point.'),

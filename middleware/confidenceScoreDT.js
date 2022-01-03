@@ -14,7 +14,7 @@ var removeNumbers = stringUtils.removeNumbers;
 var languages = ['default'];
 var adminWeights;
 var minConfidence=0, relativeMinConfidence;
-var genitiveThreshold = 0.4;
+var genitiveThreshold = 0.8;
 
 // default configuration for address confidence check
 var confidenceAddressParts = {
@@ -218,28 +218,13 @@ function computeConfidenceScore(req, hit) {
   }
 
   // score admin areas such as city or neigbourhood
-  if(adminWeights) {
-    var adminConfidence;
-
-    if(parsedText && parsedText.regions) {
-      adminConfidence = checkAdmin(parsedText.regions, hit);
-
-      // Keep admin scoring proportion constant 50% regardless of the
-      // count of finer score factors. Score is max 0.5 if city is all wrong
-      hit.confidence += weightSum*adminConfidence;
-      weightSum *= 2;
-    } else if(hit.confidence<1 && req.clean.text && countWords(req.clean.text)>1) {
-
-      // Text could not be parsed, and does not match any document perfectly.
-      // There is a chance that text contains admin info like small city without
-      // comma separation (libpostal misses those), or name is formatted loosely
-      // 'tampereen keskustori'. So check raw text against admin areas
-      adminConfidence = checkAdmin(req.clean.text, hit);
-      hit.confidence += (1 - hit.confidence)*adminConfidence; // leftover from name match
-    }
-    if(adminConfidence) {
-      logger.debug('admin confidence', adminConfidence);
-    }
+  if(adminWeights && parsedText && parsedText.regions) {
+    var adminConfidence = checkAdmin(parsedText.regions, hit);
+    logger.debug('admin confidence', adminConfidence);
+    // Keep admin scoring proportion constant 50% regardless of the
+    // count of finer score factors. Score is max 0.5 if city is all wrong
+    hit.confidence += weightSum*adminConfidence;
+    weightSum *= 2;
   }
 
   if(weightSum>0) {
@@ -247,7 +232,7 @@ function computeConfidenceScore(req, hit) {
   }
 
   // TODO: look at categories
-  logger.debug('### confidence', hit.confidence);
+  logger.info('### confidence', hit.confidence);
 
   return hit;
 }
@@ -267,10 +252,12 @@ function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
   var bestScore = 0;
   var bestName;
   var names = doc.name;
+  var textLen = text.length;
+  var parent = doc.parent || {};
 
-  var checkNewBest = function(name) {
-    var score = fuzzy.match(text, name);
-    logger.debug('#', text, '|', name, score);
+  var checkNewBest = function(_text, name) {
+    var score = fuzzy.match(_text, name);
+    logger.debug('#', _text, '|', name, score);
     if (score >= bestScore ) {
       bestScore = score;
       bestName = name;
@@ -278,42 +265,46 @@ function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
     return score;
   };
 
-  var checkAdminName = function(admin, name) {
+  var checkAdminName = function(_text, admin, name) {
     admin = normalize(admin);
     if(admin && name.indexOf(admin) === -1) {
-      checkNewBest(admin + ' ' + name);
+      checkNewBest(_text, admin + ' ' + name);
     }
   };
 
-  var checkAdminNames = function(admins, name) {
+  var checkAdminNames = function(_text, admins, name) {
     admins.forEach(function(admin) {
-      checkAdminName(admin, name);
+      checkAdminName(_text, admin, name);
     });
   };
 
   var checkLanguageNameArray =  function(namearr) {
     for (var i in namearr) {
       var name = normalize(namearr[i]);
-
       if(stripNumbers) {
         name = removeNumbers(name);
       }
-      var score = checkNewBest(name);
+      var nameLen = name.length;
+      var score = checkNewBest(text, name);
 
-      if (tryGenitive && score > genitiveThreshold && // don't prefix unless base match is OK
-          text.length > 2 + name.length ) { // Shortest admin prefix is 'ii '
-        // prefix with parent admins to catch cases like 'kontulan r-kioski'
-        var parent = doc.parent || {};
+      if (score > genitiveThreshold && tryGenitive) { // don't prefix unless base match is OK
+        // prefix with parent admins to catch cases like 'kontulan r-kioski = r-kioski, kontula'
         for(var key in adminWeights) {
           var admins = parent[key];
-          if (Array.isArray(admins)) {
-            checkAdminNames(admins, name);
-          } else {
-            checkAdminName(admins, name);
+          var check = Array.isArray(admins) ? checkAdminNames : checkAdminName;
+          if(textLen > 2 + nameLen) { // Shortest admin prefix is 'ii '
+            check(text, admins, name);
+            if (doc.street) { // try also street: 'helsinginkadun r-kioski'
+              checkAdminName(text, doc.street, name);
+            }
+          }
+          if (nameLen > 2 + textLen) {
+            check(name, admins, text);
+            if (doc.street) {
+              checkAdminName(name, doc.street, text);
+            }
           }
         }
-        // try also street: 'helsinginkadun r-kioski'
-        checkAdminName(doc.street, name);
       }
     }
   };
@@ -328,7 +319,7 @@ function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
     }
     checkLanguageNameArray(nameArr);
   }
-  logger.debug('name confidence', bestScore, text, bestName);
+  logger.info('name confidence', bestScore, text, bestName);
 
   return bestScore;
 }
@@ -344,31 +335,19 @@ function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
  * @returns {number}
  */
 function checkName(text, parsedText, hit) {
+  var docIsVenue = hit.layer === 'venue' || hit.layer === 'stop' || hit.layer === 'station' || hit.layer === 'bikestation';
 
   // parsedText name should take precedence if available since it's the cleaner name property
-  if (check.assigned(parsedText) && (check.assigned(parsedText.name) || check.assigned(parsedText.query))) {
-    var name = parsedText.name || parsedText.query;
-    var isVenue = hit.layer === 'venue' || hit.layer === 'stop' || hit.layer === 'station' || hit.layer === 'bikestation';
-    var bestScore = checkLanguageNames(name, hit, false, isVenue);
+  var name = parsedText ? parsedText.name || parsedText.query : null;
+  if (name) {
+    var searchIsVenue = !parsedText.street;
+    var bestScore = checkLanguageNames(name, hit, false, docIsVenue && searchIsVenue);
 
-    if (parsedText.regions && isVenue && bestScore > genitiveThreshold) {
-      // try approximated genitive form : tuomikirkko, tampere -> tampere tuomiokirkko
-      // exact genitive form is hard e.g. in finnish lang: turku->turun, lieto->liedon ...
-      parsedText.regions.forEach(function(region) {
-        region = removeNumbers(region);
-        if( name.indexOf(region) === -1 ) { // not already included
-          var score = checkLanguageNames(region + ' ' + name, hit);
-          if (score > bestScore) {
-            bestScore = score;
-          }
-        }
-      });
-    }
     return(bestScore);
   }
 
   // if no parsedText check the full unparsed text value
-  return(checkLanguageNames(text, hit, false, true));
+  return(checkLanguageNames(text, hit, false, docIsVenue));
 }
 
 
@@ -441,12 +420,12 @@ function checkAddressPart(text, hit, key) {
   // special case: proper version can be stored in the name
   // we need this because street name currently stores only one language
   if(key==='street' && hit.name) {
-      var _score = checkLanguageNames(text[key], hit, true, false);
+    var _score = checkLanguageNames(text[key], hit, true, false);
     if(_score>score) {
       score = _score;
     }
   }
-  logger.debug('address confidence for ' + key, score);
+  logger.info('address confidence for ' + key, score);
 
   return score;
 }

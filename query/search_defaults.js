@@ -16,7 +16,7 @@ module.exports = _.merge({}, peliasQuery.defaults, {
 
   'boundary:rect:type': 'indexed',
 
-  'ngram:analyzer': 'peliasQueryFullToken',
+  'ngram:analyzer': 'peliasIndexOneEdgeGram',
   'ngram:field': 'name.default',
   'ngram:boost': 1,
 
@@ -58,30 +58,10 @@ module.exports = _.merge({}, peliasQuery.defaults, {
   // generic multi_match cutoff_frequency
   'multi_match:cutoff_frequency': 0.01,
 
-  'admin:country_a:analyzer': 'standard',
-  'admin:country_a:field': 'parent.country_a',
-  'admin:country_a:boost': 1,
-  'admin:country_a:cutoff_frequency': 0.01,
-
-  'admin:country:analyzer': 'peliasAdmin',
-  'admin:country:field': 'parent.country',
-  'admin:country:boost': 1,
-  'admin:country:cutoff_frequency': 0.01,
-
   'admin:region:analyzer': 'peliasAdmin',
   'admin:region:field': 'parent.region',
   'admin:region:boost': 1,
   'admin:region:cutoff_frequency': 0.01,
-
-  'admin:region_a:analyzer': 'peliasAdmin',
-  'admin:region_a:field': 'parent.region_a',
-  'admin:region_a:boost': 1,
-  'admin:region_a:cutoff_frequency': 0.01,
-
-  'admin:county:analyzer': 'peliasAdmin',
-  'admin:county:field': 'parent.county',
-  'admin:county:boost': 1,
-  'admin:county:cutoff_frequency': 0.01,
 
   'admin:localadmin:analyzer': 'peliasAdmin',
   'admin:localadmin:field': 'parent.localadmin',
@@ -93,25 +73,10 @@ module.exports = _.merge({}, peliasQuery.defaults, {
   'admin:locality:boost': 1,
   'admin:locality:cutoff_frequency': 0.01,
 
-  'admin:borough:analyzer': 'peliasAdmin',
-  'admin:borough:field': 'parent.borough',
-  'admin:borough:boost': 1,
-  'admin:borough:cutoff_frequency': 0.01,
-
   'admin:neighbourhood:analyzer': 'peliasAdmin',
   'admin:neighbourhood:field': 'parent.neighbourhood',
   'admin:neighbourhood:boost': 1,
   'admin:neighbourhood:cutoff_frequency': 0.01,
-
-  'popularity:field': 'popularity',
-  'popularity:modifier': 'log1p',
-  'popularity:max_boost': 20,
-  'popularity:weight': 1,
-
-  'population:field': 'population',
-  'population:modifier': 'log1p',
-  'population:max_boost': 20,
-  'population:weight': 2,
 
   // used by fallback queries
   // @todo: it is also possible to specify layer boosting

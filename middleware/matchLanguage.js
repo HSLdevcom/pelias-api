@@ -20,7 +20,7 @@ var logger = require('pelias-logger').get('api');
 var removeNumbers = require('../helper/stringUtils').removeNumbers;
 var languages = ['default'];
 var languageMap = {};
-var languageMatchThreshold = 0.7;
+var languageMatchThreshold = 0.9;
 
 function setup(peliasConfig) {
   peliasConfig = peliasConfig || require('pelias-config').generate().api;

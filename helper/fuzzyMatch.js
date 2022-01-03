@@ -85,21 +85,20 @@ function heapPermutation(a, size, n, result)
   // if size becomes 1 then collect the obtained permutation
   if (size === 1) {
     result.push(a.join(''));
-  } else for (let i = 0; i < size; i++) {
-    heapPermutation(a, size - 1, n, result);
+  } else {
+    for (let i = 0; i < size; i++) {
+      heapPermutation(a, size - 1, n, result);
 
-    // if size is odd, swap 0th i.e (first) and (size-1)th i.e (last) element
-    if (size % 2 === 1) {
-      let temp = a[0];
-      a[0] = a[size - 1];
-      a[size - 1] = temp;
-    }
-
-    // If size is even, swap ith and (size-1)th i.e last element
-    else {
-      let temp = a[i];
-      a[i] = a[size - 1];
-      a[size - 1] = temp;
+      // if size is odd, swap 0th i.e (first) and (size-1)th i.e (last) element
+      if (size % 2 === 1) {
+        let temp = a[0];
+        a[0] = a[size - 1];
+        a[size - 1] = temp;
+      } else { // If size is even, swap ith and (size-1)th i.e last element
+        let temp = a[i];
+        a[i] = a[size - 1];
+        a[size - 1] = temp;
+      }
     }
   }
 }
@@ -145,7 +144,7 @@ function fuzzyMatch(text1, text2) {
   if(words1.length === 1 && words2.length === 1) {
     return score;
   }
-
+  var wordScore=0;
   if(words1.length<4 && words2.length<4) { // must limit the length, long permutations are too slow
     var perm1;
     var perm2 = [];
@@ -163,10 +162,10 @@ function fuzzyMatch(text1, text2) {
 
     perm1.forEach(function(p1) {
       perm2.forEach(function(p2) {
-	var wscore = _fuzzyMatch(p1, p2);
-	if (wscore>score) {
-          score=wscore;
-	}
+        var wscore = _fuzzyMatch(p1, p2);
+        if (wscore>wordScore) {
+          wordScore=wscore;
+        }
       });
     });
   } else { // use simpler comparison for long sentences, complexity just O(n*m)
@@ -175,16 +174,15 @@ function fuzzyMatch(text1, text2) {
       words1 = words2;
       words2 = temp;
     }
-    var wordScore=0;
     var weightSum=0;
     var matched={};
     words1.forEach(function(word1) {
       // find best matching yet unused word
       var bestScore=0, bestIndex;
       for(var wi in words2) {
-	if (matched[wi]) {
-	  continue;
-	}
+        if (matched[wi]) {
+          continue;
+        }
         var wscore = _fuzzyMatch(word1, words2[wi]);
         if (wscore>bestScore) {
           bestScore=wscore;
@@ -203,9 +201,10 @@ function fuzzyMatch(text1, text2) {
       }
     }
     wordScore /= weightSum;
-    if(wordScore>score) {
-      return wordScore;
-    }
+  }
+  wordScore *= 0.999; // add very small penalty from wrong word order
+  if(wordScore>score) {
+    return wordScore;
   }
   return score;
 }
