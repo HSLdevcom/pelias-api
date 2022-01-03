@@ -100,7 +100,6 @@
         "locality": 0.2,
         "neighbourhood": 0.2,
         "region": 0.2,
-        "country": 0.1,
         "street": 0.2
       },
       "confidenceAddressParts": {
