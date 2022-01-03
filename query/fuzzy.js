@@ -1,34 +1,49 @@
 const _ = require('lodash');
 const peliasQuery = require('pelias-query');
-const defaults = require('./search_defaults');
-const textParser = require('./text_parser');
+var defaults = require('./search_defaults');
+const textParser = require('./text_parser_pelias');
+const config = require('pelias-config').generate().api;
 
-var USE_FALLBACK_QUERY = true;
-var api = require('pelias-config').generate().api;
-if (api && api.query && api.query.search && api.query.search.disableFallback) {
-  USE_FALLBACK_QUERY = false;
+var adminFields = require('../helper/placeTypes');
+var views = { custom_boosts: require('./view/boost_sources_and_layers') };
+
+if (config && config.query && config.query.search && config.query.search.defaults) {
+  // merge external defaults if available
+  defaults = _.merge({}, defaults, config.query.search.defaults);
 }
 
 //------------------------------
 // general-purpose search query
 //------------------------------
-var fallbackQuery = new peliasQuery.layout.FallbackQuery();
+var query = new peliasQuery.layout.FilteredBooleanQuery();
+
+// mandatory matches
+// query.score( peliasQuery.view.ngrams, 'must' );
 
 // scoring boost
-fallbackQuery.score( peliasQuery.view.focus_only_function( ) );
-fallbackQuery.score( peliasQuery.view.popularity_only_function );
-fallbackQuery.score( peliasQuery.view.population_only_function );
-// --------------------------------
+query.score( peliasQuery.view.phrase );
+query.score( peliasQuery.view.focus( peliasQuery.view.phrase ) );
+query.score( peliasQuery.view.popularity( peliasQuery.view.phrase ) );
+
+// address components
+query.score( peliasQuery.view.address('housenumber') );
+query.score( peliasQuery.view.address('street') );
+query.score( peliasQuery.view.address('postcode') );
+
+// admin components
+query.score( peliasQuery.view.admin_multi_match(adminFields, 'peliasAdmin') );
+query.score( views.custom_boosts( config.customBoosts ) );
 
 // non-scoring hard filters
-fallbackQuery.filter( peliasQuery.view.boundary_country );
-fallbackQuery.filter( peliasQuery.view.boundary_circle );
-fallbackQuery.filter( peliasQuery.view.boundary_rect );
-fallbackQuery.filter( peliasQuery.view.boundary_polygon );
-fallbackQuery.filter( peliasQuery.view.sources );
-fallbackQuery.filter( peliasQuery.view.layers );
-fallbackQuery.filter( peliasQuery.view.categories );
-fallbackQuery.filter( peliasQuery.view.boundary_gid );
+query.filter( peliasQuery.view.boundary_circle );
+query.filter( peliasQuery.view.boundary_rect );
+query.filter( peliasQuery.view.boundary_polygon );
+query.filter( peliasQuery.view.sources );
+query.filter( peliasQuery.view.layers );
+query.filter( peliasQuery.view.categories );
+query.filter( peliasQuery.view.boundary_country );
+query.filter( peliasQuery.view.boundary_gid );
+
 // --------------------------------
 
 /**
@@ -37,13 +52,12 @@ fallbackQuery.filter( peliasQuery.view.boundary_gid );
 **/
 function generateQuery( clean ){
 
-  const vs = new peliasQuery.Vars( defaults );
-
+  var vs = new peliasQuery.Vars( defaults );
 
   // input text
   vs.var( 'input:name', clean.text );
-
-  vs.var( 'multi_match:fuzziness', 'AUTO');
+  vs.var( 'match_phrase:main:input', clean.text );
+  vs.var('multi_match:fuzziness', 'AUTO');
 
   // sources
   if( _.isArray(clean.sources) && !_.isEmpty(clean.sources) ) {
@@ -52,7 +66,7 @@ function generateQuery( clean ){
 
   // layers
   if( _.isArray(clean.layers) && !_.isEmpty(clean.layers) ) {
-    vs.var('layers', clean.layers);
+    vs.var( 'layers', clean.layers);
   }
 
   // categories
@@ -62,7 +76,9 @@ function generateQuery( clean ){
 
   // size
   if( clean.querySize ) {
-    vs.var( 'size', clean.querySize );
+    vs.var( 'size', Math.floor(0.5 + clean.querySize/2) );
+  } else {
+    vs.var( 'size', 5 );
   }
 
   // focus point
@@ -87,11 +103,6 @@ function generateQuery( clean ){
     });
   }
 
-  // boundary rect
-  if( clean['boundary.polygon']) {
-    vs.var('boundary:polygon', clean['boundary.polygon']);
-  }
-
   // boundary circle
   // @todo: change these to the correct request variable names
   if( _.isFinite(clean['boundary.circle.lat']) &&
@@ -106,6 +117,10 @@ function generateQuery( clean ){
         'boundary:circle:radius': Math.round( clean['boundary.circle.radius'] ) + 'km'
       });
     }
+  }
+
+  if( clean['boundary.polygon']) {
+    vs.var('boundary:polygon', clean['boundary.polygon']);
   }
 
   // boundary country
@@ -124,73 +139,14 @@ function generateQuery( clean ){
 
   // run the address parser
   if( clean.parsed_text ){
-    textParser( clean.parsed_text, vs );
+    textParser( clean, vs );
   }
 
-  var q = getQuery(vs);
-
-  //console.log(JSON.stringify(q, null, 2));
-
-  return q;
+  return {
+    type: 'fuzzy',
+    body: query.render(vs)
+  };
 }
 
-function getQuery(vs) {
-  if (USE_FALLBACK_QUERY && (hasStreet(vs) || isPostalCodeOnly(vs))) {
-    return {
-      type: 'search_fallback',
-      body: fallbackQuery.render(vs)
-    };
-  }
-
-  // returning undefined is a signal to a later step that a fallback parser
-  // query should be queried for
-  return undefined;
-
-}
-
-function determineQueryType(vs) {
-  if (vs.isset('input:housenumber') && vs.isset('input:street')) {
-    return 'address';
-  }
-  else if (vs.isset('input:street')) {
-    return 'street';
-  }
-  else if (vs.isset('input:query')) {
-    return 'venue';
-  }
-  else if (['neighbourhood', 'borough', 'postcode', 'county', 'region','country'].some(
-    layer => vs.isset(`input:${layer}`)
-  )) {
-    return 'admin';
-  }
-  return 'other';
-}
-
-function hasStreet(vs) {
-  return vs.isset('input:street');
-}
-
-function isPostalCodeOnly(vs) {
-  var isSet = layer => vs.isset(`input:${layer}`);
-
-  var allowedFields = ['postcode'];
-  var disallowedFields = ['query', 'category', 'housenumber', 'street',
-    'neighbourhood', 'borough', 'county', 'region', 'country'];
-
-  return allowedFields.every(isSet) &&
-    !disallowedFields.some(isSet);
-}
-
-
-function isPostalCodeWithAdmin(vs) {
-    var isSet = (layer) => {
-        return vs.isset(`input:${layer}`);
-    };
-
-    var disallowedFields = ['query', 'category', 'housenumber', 'street'];
-
-    return isSet('postcode') &&
-      !disallowedFields.some(isSet);
-}
 
 module.exports = generateQuery;
