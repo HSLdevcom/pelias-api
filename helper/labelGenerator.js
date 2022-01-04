@@ -6,7 +6,8 @@ var normalize = stringUtils.normalize;
 var removeSpaces = stringUtils.removeSpaces;
 
 module.exports = function( record, req ){
-  var schema = getSchema(record.country_a);
+  var schemaId = _.get(record, ['parent', 'country_a', 0 ], 'FIN');
+  var schema = getSchema(schemaId);
 
   // in virtually all cases, this will be the `name` field
   var labelParts = getInitialLabel(record);
@@ -44,8 +45,8 @@ function dedupeNameAndFirstLabelElement(labelParts) {
 }
 
 function getSchema(country_a) {
-  if (!_.isEmpty(schemas[country_a])) {
-    return schemas[country_a[0]];
+  if (country_a) {
+    return schemas[country_a];
   }
 
   return schemas.default;
