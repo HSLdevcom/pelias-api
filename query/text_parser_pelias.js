@@ -79,6 +79,8 @@ function addParsedVariablesToQueryVariables( clean, vs ){
   }
   else if( clean.parsed_text.hasOwnProperty('regions') ){
     leftoversString = clean.parsed_text.regions.join(' ');
+  } else if(!isStreetAddress && clean.parsed_text.name && clean.parsed_text.name.split(' ').length >1) {
+    leftoversString = clean.parsed_text.name; // apply unparsed text to boost region hits too: 'porin tori'
   }
 
   // if we have 'leftovers' then assign them to any fields which
