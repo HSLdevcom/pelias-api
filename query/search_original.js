@@ -56,6 +56,8 @@ function generateQuery( clean ){
 
   // input text
   vs.var( 'input:name', clean.text );
+  vs.var('phrase:multifield', ['phrase.*']);
+  vs.var('phrase:type', 'phrase');
 
   // sources
   if( _.isArray(clean.sources) && !_.isEmpty(clean.sources) ) {

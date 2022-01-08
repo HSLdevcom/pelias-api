@@ -28,7 +28,7 @@ query.score( peliasQuery.view.address('street') );
 query.score( peliasQuery.view.address('postcode') );
 
 // admin components
-query.score( peliasQuery.view.admin_multi_match(adminFields, 'peliasAdmin') );
+query.score( peliasQuery.view.admin_multi_match(adminFields, 'peliasIndexOneEdgeGram') );
 query.score( views.custom_boosts( config.customBoosts ) );
 
 // non-scoring hard filters
