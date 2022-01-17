@@ -9,6 +9,7 @@ var check = require('check-types');
 var _ = require('lodash');
 var fuzzy = require('../helper/fuzzyMatch');
 var stringUtils = require('../helper/stringUtils');
+const codec = require('pelias-model').codec;
 var normalize = stringUtils.normalize;
 var removeNumbers = stringUtils.removeNumbers;
 var languages = ['default'];
@@ -102,6 +103,17 @@ function compareProperty(p1, p2) {
   return (p1<p2?-1:(p1>p2?1:0));
 }
 
+function decodeAddendum(a_dum) {
+  let addendum = {};
+  for(let namespace in a_dum){
+    try {
+      addendum[namespace] = codec.decode(a_dum[namespace]);
+    } catch( e ){
+      logger.warn(`failed to decode addendum namespace ${namespace}`);
+    }
+  }
+  return addendum;
+}
 
 /* Quite heavily fi specific sorting */
 function compareResults(a, b) {
@@ -143,6 +155,25 @@ function compareResults(a, b) {
     diff = compareProperty(a.name.default, b.name.default);
     if (diff) {
       return diff;
+    }
+  }
+  if(a.addendum && b.addendum) {
+    var plat1 = _.get(decodeAddendum(a.addendum), 'GTFS.platform');
+    var plat2 = _.get(decodeAddendum(b.addendum), 'GTFS.platform');
+    if (plat1 && plat2) {
+      var n1 = parseInt(plat1);
+      var n2 = parseInt(plat2);
+      var l1 = n1 + '';
+      var l2 = n2 + '';
+      if (!isNaN(n1) && !isNaN(n2) && l1.length==plat1.length && l2.length==plat2.length) {
+	// use numeric comparison
+	plat1 = n1;
+	plat2 = n2;
+      }
+      diff = compareProperty(plat1, plat2);
+      if (diff) {
+	return diff;
+      }
     }
   }
   if(a.layer !== b.layer) { // larger has higher priority
