@@ -2,7 +2,7 @@
   "esclient": {
     "apiVersion": "7.x",
     "keepAlive": true,
-    "requestTimeout": "20000",
+    "requestTimeout": "8000",
     "hosts": [
       {
         "env": "production",
@@ -29,6 +29,7 @@
   "api" : {
     "indexName": "pelias",
     "version": "1.0",
+    "requestRetries": 0,
     "targets": {
       "canonical_sources": ["openstreetmap", "openaddresses", "nlsfi", "gtfs", "citybikes"],
       "layers_by_source": {
