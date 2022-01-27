@@ -50,7 +50,7 @@ query.filter( peliasQuery.view.boundary_gid );
   map request variables to query variables for all inputs
   provided by this HTTP request.
 **/
-function generateQuery( clean ){
+function generateQuery( clean, options ){
 
   var vs = new peliasQuery.Vars( defaults );
 
@@ -137,7 +137,7 @@ function generateQuery( clean ){
 
   // run the address parser
   if( clean.parsed_text ){
-    textParser( clean, vs );
+    textParser( clean, vs, options );
   }
 
   return {

@@ -176,7 +176,7 @@ function _sanitize( raw, clean ){
       parsedText.name = parsedText.name.split(' ').slice(0, MAX_WORDS).join(' ');
     }
     if (parsedText.regions) {
-      for (i=0; i<parsedText.regions.length; i++) {
+      for (var i=0; i<parsedText.regions.length; i++) {
 	if(parsedText.regions[i].includes(' ')) {
 	  parsedText.regions[i] = parsedText.regions[i].split(' ').slice(0, MAX_WORDS).join(' ');
 	}
@@ -261,7 +261,7 @@ function parse(clean) {
   if(parsedText.regions) {
     // filter region duplicates and validate term count
     parsedText.regions = parsedText.regions.filter(function(item, pos) {
-      return parsedText.regions.indexOf(item) == pos;
+      return parsedText.regions.indexOf(item) === pos;
     });
     if (parsedText.regions.length >= MAX_REGIONS) {
       parsedText.regions = parsedText.regions.slice(0, MAX_REGIONS);

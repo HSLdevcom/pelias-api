@@ -10,7 +10,7 @@ function isRequestTimeout(err) {
   return _.get(err, 'status') === 408;
 }
 
-function setup( apiConfig, esclient, query, should_execute ){
+function setup( apiConfig, esclient, query, should_execute, options){
   function controller( req, res, next ){
     if (!should_execute(req, res)) {
       return next();
@@ -23,7 +23,7 @@ function setup( apiConfig, esclient, query, should_execute ){
       cleanOutput = logging.removeFields(cleanOutput);
     }
 
-    const renderedQuery = query(req.clean);
+    const renderedQuery = query(req.clean, options);
 
     // if there's no query to call ES with, skip the service
     if (_.isUndefined(renderedQuery)) {
