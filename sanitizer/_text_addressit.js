@@ -25,6 +25,8 @@ const QUOTES = `"'«»‘’‚‛“”„‟‹›⹂「」『』〝〞〟﹁�
 const DELIM = ',';
 const ADDRESSIT_MIN_CHAR_LENGTH = 4;
 const MAX_REGIONS = 3;
+const MAX_WORDS = 5;
+const MAX_RAW_LEN = 120;
 
 // List of values which should not be included in parsed regions array.
 // Usually this includes country name(s) in a national setup.
@@ -52,14 +54,12 @@ if (api && api.localization) {
   }
 }
 
-
 function addAdmin(parsedText, admin) {
   if (parsedText.regions && parsedText.regions.indexOf(admin) > -1) {
     return; // nop
   }
   parsedText.regions = parsedText.regions || [];
   parsedText.regions.push(admin);
-  parsedText.admin_parts = (parsedText.admin_parts ? parsedText.admin_parts+', '+admin : admin);
 }
 
 function assignValidLibpostalParsing(parsedText, fromLibpostal, text) {
@@ -97,10 +97,6 @@ function assignValidLibpostalParsing(parsedText, fromLibpostal, text) {
         parsedText.regions.splice(addrIndex, 1);
         if (parsedText.regions.length === 0) {
           delete parsedText.regions;
-          delete parsedText.admin_parts;
-        }
-        else {
-          parsedText.admin_parts = parsedText.regions.join(DELIM + ' ');
         }
       }
     }
@@ -138,11 +134,6 @@ function assignValidLibpostalParsing(parsedText, fromLibpostal, text) {
   if(check.assigned(fromLibpostal.postalcode) && postalCodeValidator(fromLibpostal.postalcode)) {
     parsedText.postalcode = fromLibpostal.postalcode;
   }
-
-  // remove postalcode from city name
-  if(check.assigned(parsedText.postalcode) && check.assigned(parsedText.admin_parts) ) {
-    parsedText.admin_parts = parsedText.admin_parts.replace(parsedText.postalcode, '');
-  }
 }
 
 
@@ -160,57 +151,65 @@ function _sanitize( raw, clean ){
 
   // valid input 'text'
   else {
+    clean.parser = 'addressit';
     // valid text
     clean.text = normalize(raw.text);
-    clean.parser = 'addressit';
+    if (clean.text && clean.text.length > MAX_RAW_LEN) {
+      messages.warnings.push('Too long search string truncated');
+      clean.text = clean.text.substring(0, MAX_RAW_LEN);
+    }
 
     // remove anything that may have been parsed before
     var fromLibpostal = clean.parsed_text;
     delete clean.parsed_text;
 
     // parse text with query parser
-    var parsed_text = parse(clean);
+    var parsedText = parse(clean);
 
     // use the libpostal parsed address components if available
     if(check.assigned(fromLibpostal)) {
-      parsed_text = parsed_text || {};
-      assignValidLibpostalParsing(parsed_text, fromLibpostal, clean.text);
+      assignValidLibpostalParsing(parsedText, fromLibpostal, clean.text);
     }
 
-    if (check.assigned(parsed_text) && Object.keys(parsed_text).length > 0) {
-      clean.parsed_text = parsed_text;
+    // validate search term complexity
+    if (parsedText.name && parsedText.name.includes(' ')) {
+      parsedText.name = parsedText.name.split(' ').slice(0, MAX_WORDS).join(' ');
+    }
+    if (parsedText.regions) {
+      for (i=0; i<parsedText.regions.length; i++) {
+	if(parsedText.regions[i].includes(' ')) {
+	  parsedText.regions[i] = parsedText.regions[i].split(' ').slice(0, MAX_WORDS).join(' ');
+	}
+      }
+    }
+    if (parsedText.regions) {
+      parsedText.admin_parts = parsedText.regions.join(DELIM + ' ');
+    }
+
+    // remove postalcode from city name
+    if(check.assigned(parsedText.postalcode) && check.assigned(parsedText.admin_parts) ) {
+      parsedText.admin_parts = parsedText.admin_parts.replace(parsedText.postalcode, '');
+    }
+
+    if (Object.keys(parsedText).length > 0) {
+      clean.parsed_text = parsedText;
     }
   }
 
   return messages;
 }
 
-// naive approach - for admin matching during query time
-// split 'flatiron, new york, ny' into 'flatiron' and 'new york, ny'
-var naive = function(tokens) {
-  var parsed_text = {};
-
-  if( tokens.length > 1 ){
-    parsed_text.name = tokens[0];
-
-    // 1. slice away all parts after the first one
-    // 2. trim spaces from each part just in case
-    // 3. join the parts back together with appropriate delimiter and spacing
-    parsed_text.admin_parts = tokens.slice(1).join(`${DELIM} `);
-  }
-
-  return parsed_text;
-};
-
 function parse(clean) {
+  var parsedText = {};
 
   // split query on delimiter, trim tokens and remove empty elements
   var tokens = clean.text.split(DELIM)
                          .map( part => part.trim() )
                          .filter( part => part.length > 0 );
 
-  // call the naive parser to try and split tokens
-  var parsed_text = naive(tokens);
+  if( tokens.length > 1 ){
+    parsedText.name = tokens[0];
+  }
 
   // join tokens back togther with normalized delimiters
   var joined = tokens.join(`${DELIM} `);
@@ -223,16 +222,16 @@ function parse(clean) {
     // copy fields from addressit response to parsed_text
     for( var attr in parsed ){
       if( 'text' === attr ){ continue; } // ignore 'text'
-      if( !_.isEmpty( parsed[ attr ] ) && _.isUndefined( parsed_text[ attr ] ) ){
-        parsed_text[ attr ] = parsed[ attr ];
+      if( !_.isEmpty( parsed[ attr ] ) && _.isUndefined( parsedText[ attr ] ) ){
+        parsedText[ attr ] = parsed[ attr ];
       }
     }
   }
 
   // if all we found was regions, ignore it as it is not enough information to make smarter decisions
-  if( Object.keys(parsed_text).length === 1 && !_.isUndefined(parsed_text.regions) ){
+  if( Object.keys(parsedText).length === 1 && !_.isUndefined(parsedText.regions) ){
     logger.debug('AddressIt parsed regions only', {
-      parsed: parsed_text,
+      parsed: parsedText,
       params: clean
     });
 
@@ -242,37 +241,34 @@ function parse(clean) {
 
   // addressit puts 1st parsed part (venue or street name) to regions[0].
   // That is never desirable so drop the first item
-  if(cleanRegions && parsed_text.regions) {
-    if(parsed_text.regions.length>1) {
-      parsed_text.regions = parsed_text.regions.slice(1);
+  if(cleanRegions && parsedText.regions) {
+    if(parsedText.regions.length>1) {
+      parsedText.regions = parsedText.regions.slice(1);
     } else {
-      delete parsed_text.regions;
+      delete parsedText.regions;
     }
   }
 
   // remove undesired region values
-  if(parsed_text.regions && filteredRegions) {
-    parsed_text.regions = parsed_text.regions.filter(function(value) {
+  if(parsedText.regions && filteredRegions) {
+    parsedText.regions = parsedText.regions.filter(function(value) {
       return(filteredRegions.indexOf(value)===-1);
     });
-    if(parsed_text.regions.length===0) {
-      delete parsed_text.regions;
+    if(parsedText.regions.length===0) {
+      delete parsedText.regions;
     }
   }
-  if(parsed_text.regions) {
+  if(parsedText.regions) {
     // filter region duplicates and validate term count
-    parsed_text.regions = parsed_text.regions.filter(function(item, pos) {
-      return parsed_text.regions.indexOf(item) == pos;
+    parsedText.regions = parsedText.regions.filter(function(item, pos) {
+      return parsedText.regions.indexOf(item) == pos;
     });
-    if (parsed_text.regions.length > MAX_REGIONS) {
-      parsed_text.regions.splice(MAX_REGIONS);
+    if (parsedText.regions.length >= MAX_REGIONS) {
+      parsedText.regions = parsedText.regions.slice(0, MAX_REGIONS);
     }
-    parsed_text.admin_parts = parsed_text.regions.join(DELIM + ' ');
-  } else {
-    parsed_text.admin_parts = undefined;
   }
 
-  return parsed_text;
+  return parsedText;
 }
 
 function _expected(){
