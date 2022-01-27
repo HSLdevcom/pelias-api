@@ -24,6 +24,7 @@ var api = require('pelias-config').generate().api;
 const QUOTES = `"'«»‘’‚‛“”„‟‹›⹂「」『』〝〞〟﹁﹂﹃﹄＂＇｢｣`;
 const DELIM = ',';
 const ADDRESSIT_MIN_CHAR_LENGTH = 4;
+const MAX_REGIONS = 3;
 
 // List of values which should not be included in parsed regions array.
 // Usually this includes country name(s) in a national setup.
@@ -257,6 +258,18 @@ function parse(clean) {
     if(parsed_text.regions.length===0) {
       delete parsed_text.regions;
     }
+  }
+  if(parsed_text.regions) {
+    // filter region duplicates and validate term count
+    parsed_text.regions = parsed_text.regions.filter(function(item, pos) {
+      return parsed_text.regions.indexOf(item) == pos;
+    });
+    if (parsed_text.regions.length > MAX_REGIONS) {
+      parsed_text.regions.splice(MAX_REGIONS);
+    }
+    parsed_text.admin_parts = parsed_text.regions.join(DELIM + ' ');
+  } else {
+    parsed_text.admin_parts = undefined;
   }
 
   return parsed_text;
