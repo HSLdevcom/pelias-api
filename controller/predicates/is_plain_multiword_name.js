@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-module.exports = (parameter) => (req, res) => {
+module.exports = (req, res) => {
   if (req.clean.hasOwnProperty('parsed_text')) {
     if(req.clean.parsed_text.hasOwnProperty('number') && req.clean.parsed_text.hasOwnProperty('street') ||
        req.clean.parsed_text.regions
