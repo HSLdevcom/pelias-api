@@ -12,8 +12,10 @@ function _sanitize( raw, clean ){
   // invalid input 'text'
   const text =  _.trim( _.trim( raw.text ), QUOTES );
 
-  if( !_.isString(text) || _.isEmpty(text) ){
-    messages.errors.push('invalid param \'text\': text length, must be >0');
+  if( !_.isString(text) || _.isEmpty(text) ||
+      (!text.match(/\d/) && !text.match(/[a-z]/i))
+  ){
+    messages.errors.push('invalid param \'text\': text must have alphanumeric content');
   } else {
     clean.text = text;
   }
