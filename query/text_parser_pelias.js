@@ -1,21 +1,8 @@
 var logger = require('pelias-logger').get('api');
 var placeTypes = require('../helper/placeTypes');
 
-/*
-This list should only contain admin fields we are comfortable matching in the case
-when we can't identify parts of an address. This shouldn't contain fields like country_a
-or postalcode because we should only try to match those when we're sure that's what they are.
- */
-var adminFields = placeTypes.concat([
-  'region_a'
-]);
-
-/**
-  @todo: refactor me
-**/
-
 // all the address parsing logic
-function addParsedVariablesToQueryVariables( clean, vs ){
+function addParsedVariablesToQueryVariables( clean, vs, options ){
 
   // is it a street address?
   var isStreetAddress = clean.parsed_text.hasOwnProperty('number') && clean.parsed_text.hasOwnProperty('street');
@@ -79,7 +66,7 @@ function addParsedVariablesToQueryVariables( clean, vs ){
   }
   else if( clean.parsed_text.hasOwnProperty('regions') ){
     leftoversString = clean.parsed_text.regions.join(' ');
-  } else if(!isStreetAddress && clean.parsed_text.name && clean.parsed_text.name.split(' ').length >1) {
+  } else if(options && options.matchNameToAdmin) {
     leftoversString = clean.parsed_text.name; // apply unparsed text to boost region hits too: 'porin tori'
   }
 
@@ -89,7 +76,7 @@ function addParsedVariablesToQueryVariables( clean, vs ){
 
     // cycle through fields and set fields which
     // are still currently unset
-    adminFields.forEach( function( key ){
+    placeTypes.forEach( function( key ){
       if( !vs.isset( 'input:' + key ) ){
         vs.var( 'input:' + key, leftoversString );
       }

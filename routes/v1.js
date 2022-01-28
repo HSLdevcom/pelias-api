@@ -80,7 +80,7 @@ const hasRequestErrors = require('../controller/predicates/has_request_errors');
 const isCoarseReverse = require('../controller/predicates/is_coarse_reverse');
 const isAdminOnlyAnalysis = require('../controller/predicates/is_admin_only_analysis');
 const hasResultsAtLayers = require('../controller/predicates/has_results_at_layers');
-const isAddressItParse = require('../controller/predicates/is_addressit_parse');
+const isPlainMultiWordName = require('../controller/predicates/is_plain_multiword_name');
 const hasRequestCategories = require('../controller/predicates/has_request_parameter')('categories');
 const isOnlyNonAdminLayers = require('../controller/predicates/is_only_non_admin_layers');
 // this can probably be more generalized
@@ -238,16 +238,16 @@ function addRoutes(app, peliasConfig) {
     not(placeholderShouldHaveExecuted)
   );
 
-  // call very old prod query if addressit was the parser
-  const oldProdQueryShouldExecute = all(
+  // try genitive matching if search seems to need it
+  const genitiveQueryShouldExecute = all(
     not(hasRequestErrors),
-    isAddressItParse
+    not(hasGoodMatch),
+    isPlainMultiWordName
   );
 
-  // call very old prod query if addressit was the parser
+  // try fuzzy matching if perfect match was not found
   const fuzzyQueryShouldExecute = all(
     not(hasRequestErrors),
-    isAddressItParse,
     not(hasGoodMatch)
   );
 
@@ -305,7 +305,8 @@ function addRoutes(app, peliasConfig) {
       controllers.placeholder(placeholderService, geometricFiltersApply, placeholderIdsLookupShouldExecute),
       controllers.placeholder(placeholderService, geometricFiltersApply, placeholderIdsLookupShouldExecute),
       sanitizers.defer_to_addressit(shouldDeferToAddressIt),
-      controllers.search(peliasConfig.api, esclient, queries.very_old_prod, oldProdQueryShouldExecute),
+      controllers.search(peliasConfig.api, esclient, queries.very_old_prod, not(hasRequestErrors)),
+      controllers.search(peliasConfig.api, esclient, queries.very_old_prod, genitiveQueryShouldExecute, {matchNameToAdmin: true}),
       controllers.search(peliasConfig.api, esclient, queries.fuzzy, fuzzyQueryShouldExecute),
       postProc.trimByGranularity(),
       postProc.distances('focus.point.'),

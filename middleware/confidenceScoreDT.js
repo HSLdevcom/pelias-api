@@ -161,18 +161,18 @@ function compareResults(a, b) {
     var plat1 = _.get(decodeAddendum(a.addendum), 'GTFS.platform');
     var plat2 = _.get(decodeAddendum(b.addendum), 'GTFS.platform');
     if (plat1 && plat2) {
-      var n1 = parseInt(plat1);
-      var n2 = parseInt(plat2);
-      var l1 = n1 + '';
-      var l2 = n2 + '';
-      if (!isNaN(n1) && !isNaN(n2) && l1.length==plat1.length && l2.length==plat2.length) {
-	// use numeric comparison
-	plat1 = n1;
-	plat2 = n2;
+      var p1 = parseInt(plat1);
+      var p2 = parseInt(plat2);
+      var l1 = p1 + '';
+      var l2 = p2 + '';
+      if (!isNaN(p1) && !isNaN(p2) && l1.length===plat1.length && l2.length===plat2.length) {
+        // use numeric comparison
+        plat1 = p1;
+        plat2 = p2;
       }
       diff = compareProperty(plat1, plat2);
       if (diff) {
-	return diff;
+        return diff;
       }
     }
   }
