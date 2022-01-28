@@ -151,7 +151,6 @@ function _sanitize( raw, clean ){
 
   // valid input 'text'
   else {
-    clean.parser = 'addressit';
     // valid text
     clean.text = normalize(raw.text);
     if (clean.text && clean.text.length > MAX_RAW_LEN) {
