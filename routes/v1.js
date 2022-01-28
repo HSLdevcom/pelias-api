@@ -245,7 +245,7 @@ function addRoutes(app, peliasConfig) {
     isAddressItParse
   );
 
-  // call very old prod query if addressit was the parser
+  // try genitive matching if search seems to need it
   const genitiveQueryShouldExecute = all(
     not(hasRequestErrors),
     not(hasGoodMatch),
@@ -253,7 +253,7 @@ function addRoutes(app, peliasConfig) {
     isAddressItParse
   );
 
-  // call very old prod query if addressit was the parser
+  // try fuzzy matching if perfect match was not found
   const fuzzyQueryShouldExecute = all(
     not(hasRequestErrors),
     isAddressItParse,
