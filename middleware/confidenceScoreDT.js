@@ -102,6 +102,30 @@ function compareProperty(p1, p2) {
   return (p1<p2?-1:(p1>p2?1:0));
 }
 
+// platform might be a number or something like '4-6'
+function comparePlatform(p1, p2) {
+  if (Array.isArray(p1)) {
+    p1 = p1[0];
+  }
+  if (Array.isArray(p2)) {
+    p2 = p2[0];
+  }
+
+  if (!p1 || !p2) {
+    return 0;
+  }
+  if (typeof Number(p1) === 'number' && typeof Number(p2) === 'number'){
+    return (parseInt(p1)<parseInt(p2)?-1:(parseInt(p1)>parseInt(p2)?1:0));
+  }
+  if (typeof p1 === 'string'){
+    p1 = p1.toLowerCase();
+  }
+  if (typeof p2 === 'string'){
+    p2 = p2.toLowerCase();
+  }
+  return (p1<p2?-1:(p1>p2?1:0));
+}
+
 
 /* Quite heavily fi specific sorting */
 function compareResults(a, b) {
@@ -140,11 +164,25 @@ function compareResults(a, b) {
     }
   }
   if (a.name && b.name) {
+    //console.log("comparing name", a.name.default)
     diff = compareProperty(a.name.default, b.name.default);
     if (diff) {
+      //console.log("name diff", diff)
       return diff;
     }
   }
+
+  if (a.addendum && b.addendum) {
+    const platform1 = JSON.parse(a.addendum.GTFS).platform;
+    const platform2 = JSON.parse(b.addendum.GTFS).platform;
+    if (platform1 && platform2) {
+      diff = comparePlatform(platform1, platform2);
+      if (diff) {
+        return diff;
+      }
+    } 
+  }
+
   if(a.layer !== b.layer) { // larger has higher priority
     return layers.indexOf(b.layer) - layers.indexOf(a.layer);
   }

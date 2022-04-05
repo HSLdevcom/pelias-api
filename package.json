@@ -40,7 +40,6 @@
     "addressit": "1.6.0",
     "async": "^3.0.1",
     "check-types": "^7.0.0",
-    "async": "^3.0.1",
     "elasticsearch": "^16.0.0",
     "express": "^4.8.8",
     "geojson": "^0.5.0",
@@ -85,5 +84,10 @@
   "release": {
     "branch": "master",
     "success": []
-  }
+  },
+  "pre-commit": [
+    "lint",
+    "validate",
+    "test"
+  ]
 }
