@@ -27,10 +27,11 @@ function isLayerDifferent(item1, item2){
 }
 
 /**
- * Compare GTFS identity. All stops/stations are unique
+ * Compare GTFS identity. All stops/stations are unique, if id is different
  */
 function isStopSourceDifferent(item1, item2) {
-  return item1.source.indexOf('gtfs') !== -1 && item2.source.indexOf('gtfs') !== -1;
+  return item1.source.indexOf('gtfs') !== -1 && item2.source.indexOf('gtfs') !== -1 &&
+    item1._id !== item2._id;
 }
 
 /**
