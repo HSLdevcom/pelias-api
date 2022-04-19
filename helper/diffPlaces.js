@@ -27,7 +27,7 @@ function isLayerDifferent(item1, item2){
 }
 
 /**
- * Compare GTFS identity. All stops/stations are unique
+ * Compare GTFS identity. All stops/stations are unique, if id is different
  */
 function isStopSourceDifferent(item1, item2) {
   return item1.source.indexOf('gtfs') !== -1 && item2.source.indexOf('gtfs') !== -1;
@@ -159,13 +159,13 @@ function isLocationDifferent(item1, item2) {
  * Compare the two records and return true if they differ and false if same.
  */
 
-  function isDifferent(item1, item2){
+function isDifferent(item1, item2, dedupestops){
   if( isLayerDifferent( item1, item2 ) ){ return true; }
   if( isParentHierarchyDifferent( item1, item2 ) ){ return true; }
   if( isNameDifferent( item1, item2 ) ){ return true; }
   if( isAddressDifferent( item1, item2 ) ){ return true; }
   if( isLocationDifferent( item1, item2 ) ){ return true; }
-  if( isStopSourceDifferent( item1, item2 ) ){ return true; }
+  if(!dedupestops && isStopSourceDifferent( item1, item2 ) ){ return true; }
 
   return false;
 }

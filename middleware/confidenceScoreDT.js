@@ -212,10 +212,6 @@ function computeScores(req, res, next) {
   next();
 }
 
-function countWords(str) {
-  return str.split(/\s+/).length;
-}
-
 /**
  * Check all types of things to determine how confident we are that this result
  * is correct.
@@ -285,6 +281,7 @@ function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
   var names = doc.name;
   var textLen = text.length;
   var parent = doc.parent || {};
+  var textWC = text.split(' ').length;
 
   var checkNewBest = function(_text, name) {
     var score = fuzzy.match(_text, name);
@@ -316,6 +313,7 @@ function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
         name = removeNumbers(name);
       }
       var nameLen = name.length;
+      var nameWC = name.split(' ').length;
       var score = checkNewBest(text, name);
 
       if (score > genitiveThreshold && tryGenitive) { // don't prefix unless base match is OK
@@ -323,13 +321,13 @@ function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
         for(var key in adminWeights) {
           var admins = parent[key];
           var check = Array.isArray(admins) ? checkAdminNames : checkAdminName;
-          if(textLen > 2 + nameLen) { // Shortest admin prefix is 'ii '
+          if(textLen > 2 + nameLen && textWC > nameWC) { // Shortest admin prefix is 'ii '
             check(text, admins, name);
             if (doc.street) { // try also street: 'helsinginkadun r-kioski'
               checkAdminName(text, doc.street, name);
             }
           }
-          if (nameLen > 2 + textLen) {
+          if (nameLen > 2 + textLen && nameWC > textWC) {
             check(name, admins, text);
             if (doc.street) {
               checkAdminName(name, doc.street, text);
