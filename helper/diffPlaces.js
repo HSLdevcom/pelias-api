@@ -1,12 +1,13 @@
-var _ = require('lodash');
-var placeTypes = require('./placeTypes');
+const _ = require('lodash');
+const placeTypes = require('./placeTypes');
 const canonicalLayers = require('../helper/type_mapping').getCanonicalLayers();
 const field = require('../helper/fieldValue');
-var geolib = require('geolib');
+const geolib = require('geolib');
 var minDistance = 200; // meters
 const decodeAddendum = require('./decode_addendum');
 
-var api = require('pelias-config').generate().api;
+const api = require('pelias-config').generate().api;
+
 if (api && api.dedupeDistanceThreshold) {
   minDistance = api.dedupeDistanceThreshold;
 }
@@ -40,12 +41,13 @@ function isStopSourceDifferent(item1, item2) {
 function isStopPlatformDifferent(item1, item2) {
   if (item1.source.indexOf('gtfs') !== -1 && item2.source.indexOf('gtfs') !== -1 &&
       item1.addendum &&  item2.addendum) {
-    var plat1 = _.get(decodeAddendum(item1.addendum), 'GTFS.platform');
-    var plat2 = _.get(decodeAddendum(item2.addendum), 'GTFS.platform');
+    const plat1 = _.get(decodeAddendum(item1.addendum), 'GTFS.platform');
+    const plat2 = _.get(decodeAddendum(item2.addendum), 'GTFS.platform');
     if (plat1 !== plat2) {
       return true;
     }
     return false;
+  }
 }
 
 /**
@@ -159,9 +161,9 @@ function isLocationDifferent(item1, item2) {
   if(item1._type !== 'address' || item2._type !== 'address') {
     /* in explicit address case, location difference is most likely a data error */
     if(item1.center_point && item2.center_point) {
-      var p1 = { latitude: item1.center_point.lat, longitude: item1.center_point.lon };
-      var p2 = { latitude: item2.center_point.lat, longitude: item2.center_point.lon };
-      var distance = geolib.getDistance( p1, p2 );
+      const p1 = { latitude: item1.center_point.lat, longitude: item1.center_point.lon };
+      const p2 = { latitude: item2.center_point.lat, longitude: item2.center_point.lon };
+      const distance = geolib.getDistance( p1, p2 );
       if( distance > minDistance) {
         return true;
       }
@@ -196,13 +198,13 @@ function isPropertyDifferent(item1, item2, prop ){
 
   // do not consider absence of information as a difference,
   // if a more complete document (item1) is already included.
-  if(_.isUndefined(item2, prop2)) {
+  if(_.isUndefined(item2, prop)) {
     return false;
   }
 
   // handle arrays and other non-string values
-  var prop1 = field.getStringValue( _.get( item1, prop ) );
-  var prop2 = field.getStringValue( _.get( item2, prop ) );
+  const prop1 = field.getStringValue( _.get( item1, prop ) );
+  const prop2 = field.getStringValue( _.get( item2, prop ) );
 
   // compare strings
   return normalizeString(prop1) !== normalizeString(prop2);
