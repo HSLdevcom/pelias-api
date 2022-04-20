@@ -4,6 +4,7 @@ const canonicalLayers = require('../helper/type_mapping').getCanonicalLayers();
 const field = require('../helper/fieldValue');
 var geolib = require('geolib');
 var minDistance = 200; // meters
+const decodeAddendum = require('./decode_addendum');
 
 var api = require('pelias-config').generate().api;
 if (api && api.dedupeDistanceThreshold) {
@@ -31,6 +32,20 @@ function isLayerDifferent(item1, item2){
  */
 function isStopSourceDifferent(item1, item2) {
   return item1.source.indexOf('gtfs') !== -1 && item2.source.indexOf('gtfs') !== -1;
+}
+
+/**
+ * Compare GTFS stop platforms
+ */
+function isStopPlatformDifferent(item1, item2) {
+  if (item1.source.indexOf('gtfs') !== -1 && item2.source.indexOf('gtfs') !== -1 &&
+      item1.addendum &&  item2.addendum) {
+    var plat1 = _.get(decodeAddendum(item1.addendum), 'GTFS.platform');
+    var plat2 = _.get(decodeAddendum(item2.addendum), 'GTFS.platform');
+    if (plat1 !== plat2) {
+      return true;
+    }
+    return false;
 }
 
 /**
@@ -165,7 +180,8 @@ function isDifferent(item1, item2, dedupestops){
   if( isNameDifferent( item1, item2 ) ){ return true; }
   if( isAddressDifferent( item1, item2 ) ){ return true; }
   if( isLocationDifferent( item1, item2 ) ){ return true; }
-  if(!dedupestops && isStopSourceDifferent( item1, item2 ) ){ return true; }
+  if( !dedupestops && isStopSourceDifferent( item1, item2 ) ){ return true; }
+  if( isStopPlatformDifferent( item1, item2 ) ){ return true; }
 
   return false;
 }
