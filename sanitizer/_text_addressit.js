@@ -100,6 +100,13 @@ function assignValidLibpostalParsing(parsedText, fromLibpostal, text) {
         }
       }
     }
+  } else {
+    // special case: libpostal parsing assigns the number from 'pasila raide 2'
+    // into street number without a street and number won't contribute in scoring
+    if (fromLibpostal.number && parsedText.name && !parsedText.name.includes(fromLibpostal.number)) {
+      // add removed number back to name
+      parsedText.name += ' ' + fromLibpostal.number;
+    }
   }
 
   const nbrh = fromLibpostal.neighbourhood;
