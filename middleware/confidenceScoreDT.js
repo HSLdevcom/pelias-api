@@ -9,7 +9,7 @@ var check = require('check-types');
 var _ = require('lodash');
 var fuzzy = require('../helper/fuzzyMatch');
 var stringUtils = require('../helper/stringUtils');
-const codec = require('pelias-model').codec;
+const decodeAddendum = require('../helper/decode_addendum');
 var normalize = stringUtils.normalize;
 var removeNumbers = stringUtils.removeNumbers;
 var languages = ['default'];
@@ -101,18 +101,6 @@ function compareProperty(p1, p2) {
     p2 = p2.toLowerCase();
   }
   return (p1<p2?-1:(p1>p2?1:0));
-}
-
-function decodeAddendum(a_dum) {
-  let addendum = {};
-  for(let namespace in a_dum){
-    try {
-      addendum[namespace] = codec.decode(a_dum[namespace]);
-    } catch( e ){
-      logger.warn(`failed to decode addendum namespace ${namespace}`);
-    }
-  }
-  return addendum;
 }
 
 /* Quite heavily fi specific sorting */
