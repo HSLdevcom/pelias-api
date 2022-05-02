@@ -19,7 +19,8 @@ var targetError = function(target, target_list) {
 
 function sanitizeId(rawId, messages) {
   var parts = rawId.split(ID_DELIM);
-
+  console.log("parts", parts[0])
+  console.log("type", type_mapping.source_mapping[source][0])
   if ( parts.length < 3 ) {
     messages.errors.push( formatError(rawId) );
     return;
@@ -30,9 +31,15 @@ function sanitizeId(rawId, messages) {
     source = 'gtfs';
   } else if(source.indexOf('citybikes') === 0) {
     source = 'citybikes';
+  } else if(source.indexOf('carparks') === 0) {
+    source = 'carparks';
+  } else if(source.indexOf('bikeparks') === 0) {
+    source = 'bikeparks';
   }
   var layer = parts[1];
   var id = parts.slice(2).join(ID_DELIM);
+
+
 
   // check if any parts of the gid are empty
   if (_.includes([source, layer, id], '')) {
@@ -50,8 +57,9 @@ function sanitizeId(rawId, messages) {
     return;
   }
 
+ 
   return {
-    source: source === 'gtfs' || source === 'citybikes' ? parts[0] : type_mapping.source_mapping[source][0],
+    source: source === 'gtfs' || source === 'citybikes' || source === 'carparks' || source === 'bikeparks' ? parts[0] : type_mapping.source_mapping[source][0],
     layer: layer,
     id: id,
   };

@@ -31,11 +31,13 @@
     "version": "1.0",
     "requestRetries": 0,
     "targets": {
-      "canonical_sources": ["openstreetmap", "openaddresses", "nlsfi", "gtfs", "citybikes"],
+      "canonical_sources": ["openstreetmap", "openaddresses", "nlsfi", "gtfs", "citybikes", "carparks", "bikeparks"],
       "layers_by_source": {
         "nlsfi": ["venue", "stop", "station"],
         "gtfs": ["stop", "station"],
-        "citybikes": ["bikestation"]
+        "citybikes": ["bikestation"],
+        "carparks": ["carpark"],
+        "bikeparks": ["bikepark"]
       },
       "source_aliases": {
         "gtfs": ["gtfs"],
@@ -114,7 +116,7 @@
       "streetNumberValidator": "^[0-9].*$",
       "translations": "/opt/pelias/api/translations.json",
       "equalCharMap": {
-        "é":"e",
+        "ï¿½":"e",
         "'":"",
         "-":" "
       },

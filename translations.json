@@ -5322,7 +5322,9 @@
       "stop":"hållplats",
       "station":"station",
       "street":"gata",
-      "bikestation":"Stadscykelstation"
+      "bikestation":"Stadscykelstation",
+      "carpark":"Infartsparkering",
+      "bikepark":"Anslutningsparkering för cyklar"
     },
     "__category": {
       "waterway": "vattnen",
@@ -5449,7 +5451,9 @@
       "stop":"pysäkki",
       "station":"asema",
       "street":"katu",
-      "bikestation":"Kaupunkipyöräasema"
+      "bikestation":"Kaupunkipyöräasema",
+      "carpark":"Liityntäpysäköinti",
+      "bikepark":"Liityntäpyöräparkki"
     },
     "__category": {
       "waterway": "vesistö",
