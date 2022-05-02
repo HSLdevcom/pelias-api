@@ -19,8 +19,6 @@ var targetError = function(target, target_list) {
 
 function sanitizeId(rawId, messages) {
   var parts = rawId.split(ID_DELIM);
-  console.log("parts", parts[0])
-  console.log("type", type_mapping.source_mapping[source][0])
   if ( parts.length < 3 ) {
     messages.errors.push( formatError(rawId) );
     return;
