@@ -30,6 +30,8 @@ var confidenceAddressParts = {
 var layers = [
   'neighbourhood',
   'bikestation',
+  'bikepark',
+  'carpark',
   'stop',
   'venue',
   'address',
@@ -352,7 +354,7 @@ function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
  * @returns {number}
  */
 function checkName(text, parsedText, hit) {
-  var docIsVenue = hit.layer === 'venue' || hit.layer === 'stop' || hit.layer === 'station' || hit.layer === 'bikestation';
+  var docIsVenue = hit.layer === 'venue' || hit.layer === 'stop' || hit.layer === 'station' || hit.layer === 'bikestation' || hit.layer === 'carpark' || hit.layer === 'bikepark';
 
   // parsedText name should take precedence if available since it's the cleaner name property
   var name = parsedText ? parsedText.name || parsedText.query : null;
