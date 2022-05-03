@@ -116,7 +116,7 @@
       "streetNumberValidator": "^[0-9].*$",
       "translations": "/opt/pelias/api/translations.json",
       "equalCharMap": {
-        "�":"e",
+        "é":"e",
         "'":"",
         "-":" "
       },
