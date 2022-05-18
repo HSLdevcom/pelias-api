@@ -17,10 +17,8 @@ function _sanitize( raw, clean ){
         source = 'gtfs'; // map gtfs<feedid> to plain gtfs
       } else if (source.indexOf('citybikes') === 0) {
         source = 'citybikes';
-      } else if (source.indexOf('carparks') === 0) {
-        source = 'carparks';
-      } else if (source.indexOf('bikeparks') === 0) {
-        source = 'bikeparks';
+      } else if (source.indexOf('parks') === 0) {
+        source = 'parks';
       }
       var layers_for_source = type_mapping.layers_by_source[source];
       clean.layers.forEach(function(layer) {

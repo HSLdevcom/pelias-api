@@ -31,13 +31,12 @@
     "version": "1.0",
     "requestRetries": 0,
     "targets": {
-      "canonical_sources": ["openstreetmap", "openaddresses", "nlsfi", "gtfs", "citybikes", "carparks", "bikeparks"],
+      "canonical_sources": ["openstreetmap", "openaddresses", "nlsfi", "gtfs", "citybikes", "parks"],
       "layers_by_source": {
         "nlsfi": ["venue", "stop", "station"],
         "gtfs": ["stop", "station"],
         "citybikes": ["bikestation"],
-        "carparks": ["carpark"],
-        "bikeparks": ["bikepark"]
+        "parks": ["carpark", "bikepark"],
       },
       "source_aliases": {
         "gtfs": ["gtfs"],
