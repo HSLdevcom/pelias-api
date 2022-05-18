@@ -29,10 +29,8 @@ function sanitizeId(rawId, messages) {
     source = 'gtfs';
   } else if(source.indexOf('citybikes') === 0) {
     source = 'citybikes';
-  } else if(source.indexOf('carparks') === 0) {
-    source = 'carparks';
-  } else if(source.indexOf('bikeparks') === 0) {
-    source = 'bikeparks';
+  } else if(source.indexOf('parks') === 0) {
+    source = 'parks';
   }
   var layer = parts[1];
   var id = parts.slice(2).join(ID_DELIM);
@@ -57,7 +55,7 @@ function sanitizeId(rawId, messages) {
 
  
   return {
-    source: source === 'gtfs' || source === 'citybikes' || source === 'carparks' || source === 'bikeparks' ? parts[0] : type_mapping.source_mapping[source][0],
+    source: source === 'gtfs' || source === 'citybikes' || source === 'parks' ? parts[0] : type_mapping.source_mapping[source][0],
     layer: layer,
     id: id,
   };
