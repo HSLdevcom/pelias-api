@@ -36,7 +36,7 @@
         "nlsfi": ["venue", "stop", "station"],
         "gtfs": ["stop", "station"],
         "citybikes": ["bikestation"],
-        "parks": ["carpark", "bikepark"],
+        "parks": ["carpark", "bikepark"]
       },
       "source_aliases": {
         "gtfs": ["gtfs"],
