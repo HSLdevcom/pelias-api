@@ -283,16 +283,19 @@ function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
     return score;
   };
 
-  var checkAdminName = function(_text, admin, name) {
+  var checkAdminName = function(_text, admin, name, limitLength) {
     admin = normalize(admin);
     if(admin && name.indexOf(admin) === -1) {
-      checkNewBest(_text, admin + ' ' + name);
+      const extendedName = admin + ' ' + name;
+      if(!limitLength || extendedName.length <= _text.length) {
+	checkNewBest(_text, admin + ' ' + name);
+      }
     }
   };
 
-  var checkAdminNames = function(_text, admins, name) {
+  var checkAdminNames = function(_text, admins, name, limitLength) {
     admins.forEach(function(admin) {
-      checkAdminName(_text, admin, name);
+      checkAdminName(_text, admin, name, limitLength);
     });
   };
 
@@ -312,15 +315,15 @@ function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
           var admins = parent[key];
           var check = Array.isArray(admins) ? checkAdminNames : checkAdminName;
           if(textLen > 2 + nameLen && textWC > nameWC) { // Shortest admin prefix is 'ii '
-            check(text, admins, name);
+            check(text, admins, name, false);
             if (doc.street) { // try also street: 'helsinginkadun r-kioski'
-              checkAdminName(text, doc.street, name);
+              checkAdminName(text, doc.street, name, false);
             }
           }
           if (nameLen > 2 + textLen && nameWC > textWC) {
-            check(name, admins, text);
+            check(name, admins, text, true);
             if (doc.street) {
-              checkAdminName(name, doc.street, text);
+              checkAdminName(name, doc.street, text, true);
             }
           }
         }
