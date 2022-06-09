@@ -63,7 +63,6 @@ function addAdmin(parsedText, admin) {
 }
 
 function assignValidLibpostalParsing(parsedText, fromLibpostal, text) {
-
   // validate street number
   if(check.assigned(fromLibpostal.number) && streetNumberValidator(fromLibpostal.number) && fromLibpostal.street) {
     parsedText.number = fromLibpostal.number;
@@ -106,6 +105,16 @@ function assignValidLibpostalParsing(parsedText, fromLibpostal, text) {
     if (fromLibpostal.number && parsedText.name && !parsedText.name.includes(fromLibpostal.number)) {
       // add removed number back to name
       parsedText.name += ' ' + fromLibpostal.number;
+    }
+  }
+
+   // parser often misinterprets partial text (la, ny, etc) as US state
+  // we should reprogram parsing database with finnish addresses only!
+  const state = fromLibpostal.state;
+  if (state) {
+    if (parsedText.name && parsedText.name.indexOf(state) === -1) {
+      parsedText.name = text; // parser is confused, search for full text
+      return;
     }
   }
 
