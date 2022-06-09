@@ -306,10 +306,10 @@ function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
         name = removeNumbers(name);
       }
       var nameLen = name.length;
-      var nameWC = name.split(' ').length;
-      var score = checkNewBest(text, name);
 
       if (score > genitiveThreshold && tryGenitive) { // don't prefix unless base match is OK
+        var nameWC = name.split(' ').length;
+        var score = checkNewBest(text, name);
         // prefix with parent admins to catch cases like 'kontulan r-kioski = r-kioski, kontula'
         for(var key in adminWeights) {
           var admins = parent[key];
