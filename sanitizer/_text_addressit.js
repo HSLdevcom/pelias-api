@@ -108,11 +108,11 @@ function assignValidLibpostalParsing(parsedText, fromLibpostal, text) {
     }
   }
 
-   // parser often misinterprets partial text (la, ny, etc) as US state
+  // parser often misinterprets partial text (la, ny, etc) as US state or country
   // we should reprogram parsing database with finnish addresses only!
-  const state = fromLibpostal.state;
-  if (state) {
-    if (parsedText.name && parsedText.name.indexOf(state) === -1) {
+  const mistake = fromLibpostal.state || fromLibpostal.country;
+  if (mistake) {
+    if (parsedText.name && parsedText.name.indexOf(mistake) === -1) {
       parsedText.name = text; // parser is confused, search for full text
       return;
     }
