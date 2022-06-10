@@ -274,7 +274,7 @@ function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
   var textWC = text.split(' ').length;
 
   var checkNewBest = function(_text, name, coeff) {
-    var score = fuzzy.match(_text, name) * score;
+    var score = fuzzy.match(_text, name) * coeff;
     logger.debug('#', _text, '|', name, score);
     if (score >= bestScore ) {
       bestScore = score;
@@ -307,11 +307,11 @@ function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
       if(stripNumbers) {
         name = removeNumbers(name);
       }
-      var nameLen = name.length;
-
+      var score = checkNewBest(text, name, 1.0);
       if (score > genitiveThreshold && tryGenitive) { // don't prefix unless base match is OK
         var nameWC = name.split(' ').length;
-        var score = checkNewBest(text, name, 1.0);
+        var nameLen = name.length;
+
         // prefix with parent admins to catch cases like 'kontulan r-kioski = r-kioski, kontula'
         for(var key in adminWeights) {
           var admins = parent[key];
