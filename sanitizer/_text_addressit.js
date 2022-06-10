@@ -37,6 +37,8 @@ var cleanRegions;
 var postalCodeValidator = function(code) { return true; }; // default = accept everything
 var streetNumberValidator = function(code) { return true; };
 
+const unusedParse = ['state', 'county', 'country', 'borough'];
+
 if (api && api.localization) {
   filteredRegions = api.localization.filteredRegions;
   cleanRegions = api.localization.cleanRegions;
@@ -108,16 +110,6 @@ function assignValidLibpostalParsing(parsedText, fromLibpostal, text) {
     }
   }
 
-  // parser often misinterprets partial text (la, ny, etc) as US state or country
-  // we should reprogram parsing database with finnish addresses only!
-  const mistake = fromLibpostal.state || fromLibpostal.country;
-  if (mistake) {
-    if (parsedText.name && parsedText.name.indexOf(mistake) === -1) {
-      parsedText.name = text; // parser is confused, search for full text
-      return;
-    }
-  }
-
   const nbrh = fromLibpostal.neighbourhood;
   if(nbrh) {
     parsedText.neighbourhood = nbrh;
@@ -150,6 +142,25 @@ function assignValidLibpostalParsing(parsedText, fromLibpostal, text) {
   if(check.assigned(fromLibpostal.postalcode) && postalCodeValidator(fromLibpostal.postalcode)) {
     parsedText.postalcode = fromLibpostal.postalcode;
   }
+
+  // parser often misinterprets partial text (la, ny, etc) as US state, county or country
+  // so that some part of search text can get totally ignored
+  // we should reprogram parsing database with finnish addresses only!
+  // Libpostal does not document how to do that.
+  unusedParse.forEach(key => {
+    const mistake = fromLibpostal[key];
+    // check if parser has erased some search components which would be ignored in search
+    if (mistake) {
+      if ((!parsedText.name || parsedText.name.indexOf(mistake) === -1) &&
+          (!parsedText.street || parsedText.street.indexOf(mistake) === -1) &&
+          (!parsedText.regions || parsedText.regions.indexOf(mistake) === -1)
+      ) {
+        // parser is confused, search for full text
+        parsedText.name = text;
+        delete parsedText.regions;
+      }
+    }
+  });
 }
 
 
@@ -192,9 +203,9 @@ function _sanitize( raw, clean ){
     }
     if (parsedText.regions) {
       for (var i=0; i<parsedText.regions.length; i++) {
-	if(parsedText.regions[i].includes(' ')) {
-	  parsedText.regions[i] = parsedText.regions[i].split(' ').slice(0, MAX_WORDS).join(' ');
-	}
+        if(parsedText.regions[i].includes(' ')) {
+          parsedText.regions[i] = parsedText.regions[i].split(' ').slice(0, MAX_WORDS).join(' ');
+        }
       }
     }
     if (parsedText.regions) {
