@@ -273,8 +273,8 @@ function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
   var parent = doc.parent || {};
   var textWC = text.split(' ').length;
 
-  var checkNewBest = function(_text, name) {
-    var score = fuzzy.match(_text, name);
+  var checkNewBest = function(_text, name, coeff) {
+    var score = fuzzy.match(_text, name) * coeff;
     logger.debug('#', _text, '|', name, score);
     if (score >= bestScore ) {
       bestScore = score;
@@ -283,16 +283,21 @@ function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
     return score;
   };
 
-  var checkAdminName = function(_text, admin, name) {
+  // strict length limit is not necessary against user typed search string
+  // which can be unfinished: porin raut vs rautatieasema, pori
+  var checkAdminName = function(_text, admin, name, limitLength) {
     admin = normalize(admin);
     if(admin && name.indexOf(admin) === -1) {
-      checkNewBest(_text, admin + ' ' + name);
+      const extendedName = admin + ' ' + name;
+      if(!limitLength || extendedName.length <= _text.length) {
+	checkNewBest(_text, admin + ' ' + name, 0.99);
+      }
     }
   };
 
-  var checkAdminNames = function(_text, admins, name) {
+  var checkAdminNames = function(_text, admins, name, limitLength) {
     admins.forEach(function(admin) {
-      checkAdminName(_text, admin, name);
+      checkAdminName(_text, admin, name, limitLength);
     });
   };
 
@@ -302,25 +307,25 @@ function checkLanguageNames(text, doc, stripNumbers, tryGenitive) {
       if(stripNumbers) {
         name = removeNumbers(name);
       }
-      var nameLen = name.length;
-      var nameWC = name.split(' ').length;
-      var score = checkNewBest(text, name);
-
+      var score = checkNewBest(text, name, 1.0);
       if (score > genitiveThreshold && tryGenitive) { // don't prefix unless base match is OK
+        var nameWC = name.split(' ').length;
+        var nameLen = name.length;
+
         // prefix with parent admins to catch cases like 'kontulan r-kioski = r-kioski, kontula'
         for(var key in adminWeights) {
           var admins = parent[key];
-          var check = Array.isArray(admins) ? checkAdminNames : checkAdminName;
+          var adminCheck = Array.isArray(admins) ? checkAdminNames : checkAdminName;
           if(textLen > 2 + nameLen && textWC > nameWC) { // Shortest admin prefix is 'ii '
-            check(text, admins, name);
+            adminCheck(text, admins, name, false);
             if (doc.street) { // try also street: 'helsinginkadun r-kioski'
-              checkAdminName(text, doc.street, name);
+              checkAdminName(text, doc.street, name, false);
             }
           }
           if (nameLen > 2 + textLen && nameWC > textWC) {
-            check(name, admins, text);
+            adminCheck(name, admins, text, true);
             if (doc.street) {
-              checkAdminName(name, doc.street, text);
+              checkAdminName(name, doc.street, text, true);
             }
           }
         }
