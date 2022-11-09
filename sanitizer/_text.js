@@ -13,7 +13,7 @@ function _sanitize( raw, clean ){
   const text =  _.trim( _.trim( raw.text ), QUOTES );
 
   if( !_.isString(text) || _.isEmpty(text) ||
-      (!text.match(/\d/) && !text.match(/[a-z]/i))
+      (!text.match(/\d/) && !text.match(/[a-z]/i) && !text.match(/[å|ä|ö]/i))
   ){
     messages.errors.push('invalid param \'text\': text must have alphanumeric content');
   } else {
