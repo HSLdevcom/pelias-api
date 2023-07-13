@@ -116,6 +116,8 @@
       "translations": "/opt/pelias/api/translations.json",
       "equalCharMap": {
         "é":"e",
+        "õ":"ö",
+        "ü":"u",
         "'":"",
         "-":" "
       },
