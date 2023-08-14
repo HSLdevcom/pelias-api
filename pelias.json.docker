@@ -126,6 +126,10 @@
         "FIN": {
           "address": { "fields": [["street", "housenumber"], "neighbourhood"], "matchType": "first", "targets": ["venue", "stop", "station"] },
           "local": { "fields": ["localadmin", "locality"], "matchType": "best" }
+        },
+        "EST": {
+          "address": { "fields": [["street", "housenumber"], "neighbourhood"], "matchType": "first", "targets": ["venue", "stop", "station"] },
+          "local": { "fields": ["localadmin"], "matchType": "best" }
         }
       }
     }
