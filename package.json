@@ -40,8 +40,7 @@
     "addressit": "1.6.0",
     "async": "^3.0.1",
     "check-types": "^7.0.0",
-    "async": "^3.0.1",
-    "elasticsearch": "^16.7.2",
+    "elasticsearch": "^16.7.3",
     "express": "^4.17.2",
     "geojson": "^0.5.0",
     "geolib": "^3.0.0",
@@ -67,7 +66,7 @@
     "stable": "^0.1.8",
     "stats-lite": "^2.0.4",
     "pelias-text-analyzer": "github:hsldevcom/pelias-text-analyzer",
-    "through2": "^3.0.0",
+    "through2": "^4.0.2",
     "point-in-polygon": "1.0.1"
   },
   "devDependencies": {
