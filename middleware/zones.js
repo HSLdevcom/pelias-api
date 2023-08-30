@@ -11,6 +11,7 @@ function setup(prefix) {
     Hameenlinna: require('./config/hml_zone_areas_20230214.json'),
     Lappeenranta: require('./config/lpr_zone_areas_20220113.json'),
     OULU: require('./config/oulu_zone_areas_20230223.json'),
+    Joensuu: require('./config/joensuu_zone_areas_20230830.json'),
   };
 
   // precompute bounding boxes to optimize test speed
