@@ -207,6 +207,8 @@ function _sanitize( raw, clean ){
           parsedText.regions[i] = parsedText.regions[i].split(' ').slice(0, MAX_WORDS).join(' ');
         }
       }
+      // remove numbers from admin regions
+      parsedText.regions = parsedText.regions.filter(r => !r.match(/^\d/));
     }
     if (parsedText.regions) {
       parsedText.admin_parts = parsedText.regions.join(DELIM + ' ');
