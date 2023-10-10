@@ -96,9 +96,6 @@ function assignValidLibpostalParsing(parsedText, fromLibpostal, text) {
       var addrIndex = parsedText.regions.indexOf(address);
       if (addrIndex > -1) {
         parsedText.regions.splice(addrIndex, 1);
-        if (parsedText.regions.length === 0) {
-          delete parsedText.regions;
-        }
       }
     }
   } else {
@@ -207,9 +204,16 @@ function _sanitize( raw, clean ){
           parsedText.regions[i] = parsedText.regions[i].split(' ').slice(0, MAX_WORDS).join(' ');
         }
       }
+      // remove numbers from admin regions
+      parsedText.regions = parsedText.regions.filter(r => !r.match(/^\d/));
     }
-    if (parsedText.regions) {
-      parsedText.admin_parts = parsedText.regions.join(DELIM + ' ');
+
+    if(parsedText.regions) {
+      if(parsedText.regions.length===0) {
+	delete parsedText.regions;
+      } else {
+	parsedText.admin_parts = parsedText.regions.join(DELIM + ' ');
+      }
     }
 
     // remove postalcode from city name
@@ -280,9 +284,6 @@ function parse(clean) {
     parsedText.regions = parsedText.regions.filter(function(value) {
       return(filteredRegions.indexOf(value)===-1);
     });
-    if(parsedText.regions.length===0) {
-      delete parsedText.regions;
-    }
   }
   if(parsedText.regions) {
     // filter region duplicates and validate term count
