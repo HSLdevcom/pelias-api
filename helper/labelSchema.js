@@ -36,7 +36,7 @@ function baseVal(val) {
 
 // find the first field of record that has a non-empty value that's not already in labelParts
 function getFirstProperty(fields, matchType, targets) {
-  return function(record, req) {
+  return function(record, req, skip) {
 
     if (targets && targets.indexOf(record.layer)===-1) {
       return null; // not applicable to this kind of record
@@ -50,6 +50,9 @@ function getFirstProperty(fields, matchType, targets) {
     var bestField;
     for (var i = 0; i < fields.length; i++) {
       var field = fields[i];
+      if (field === skip) {
+	continue;
+      }
       var fieldValue;
       if (Array.isArray(field)) { // chain multi parts
         var parts = [];
