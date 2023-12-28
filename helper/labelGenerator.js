@@ -14,7 +14,8 @@ module.exports = function( record, req ){
   // in virtually all cases, this will be the `name` field
   var labelParts = getInitialLabel(record);
   // do not add neighbourhood to largish area-like items
-  const skip = record.category?.includes('populated area') ? 'neighbourhood' : null;
+  const categ = record.category || [];
+  const skip = categ.includes('populated area') ? 'neighbourhood' : null;
   // iterate the schema
   for (var field in schema) {
     var valueFunction = schema[field];
