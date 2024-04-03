@@ -116,7 +116,8 @@ function findZones(lon, lat, regions) {
   for (const key in regions) {
     for (const feature of regions[key].features) {
       if (isInFeature(lon, lat, feature)) {
-        zones.push(key + ':' + feature.properties.Zone); // new hit
+        const zoneKey = Object.keys(feature.properties).find(k => k.toLowerCase() === 'zone');
+        zones.push(key + ':' + feature.properties[zoneKey]); // new hit
       }
     }
   }
