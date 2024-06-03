@@ -1,4 +1,4 @@
-FROM node:16-buster
+FROM node:18-buster
 
 # This dockerfile creates a base image, which contains all libpostal components.
 # The actual travis build for pelias api does not run error sensitive and
