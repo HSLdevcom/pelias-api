@@ -1,4 +1,4 @@
-FROM node:16-buster
+FROM node:18-buster
 
 # This dockerfile creates a base image, which contains all libpostal components.
 # The actual travis build for pelias api does not run error sensitive and
@@ -8,7 +8,7 @@ FROM node:16-buster
 
 # install libpostal
 RUN apt-get update
-RUN echo 'APT::Acquire::Retries "20";' >> /etc/apt/apt.conf
+RN echo 'APT::Acquire::Retries "20";' >> /etc/apt/apt.conf
 RUN apt-get install -y --no-install-recommends git curl make libsnappy-dev autoconf automake libtool python pkg-config
 
 RUN mkdir -p /mnt/data
