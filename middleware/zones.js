@@ -13,7 +13,7 @@ function setup(prefix) {
     OULU: require('./config/oulu_zone_areas_20241011.json'),
     Joensuu: require('./config/joensuu_zone_areas_20230830.json'),
     Vaasa: require('./config/vaasa_zone_lines_20231220.json'),
-    Kotka: require('./config/kotka_zone_areas_20241218.json'),
+    Kotka: require('./config/kotka_zone_areas_20250114.json'),
   };
 
   // precompute bounding boxes to optimize test speed
