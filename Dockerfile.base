@@ -1,7 +1,7 @@
-FROM node:18-buster
+FROM node:20-bullseye
 
 # This dockerfile creates a base image, which contains all libpostal components.
-# The actual travis build for pelias api does not run error sensitive and
+# The actual ci build for pelias api does not run error sensitive and
 # time consuming libpostal install, but uses a prebuilt base image created by this script.
 # If libpostal gets updated in the future, run 'docker build --tag hsldevcom/libpostal -f Dockerfile.base .'
 # and push the updated image to hsldevcom docker registry.
