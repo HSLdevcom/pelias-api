@@ -1,4 +1,4 @@
-FROM node:20-bullseye
+FROM node:18-bullseye
 
 # This dockerfile creates a base image, which contains all libpostal components.
 # The actual ci build for pelias api does not run error sensitive and
