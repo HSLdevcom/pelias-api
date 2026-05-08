@@ -6,7 +6,7 @@ function setup(prefix) {
     HSL: require('./config/hsl_zone_areas_20251013.json'),
     tampere: require('./config/tre_zone_areas_20240108.json'),
     LINKKI: require('./config/jkl_zone_areas_20240531.json'),
-    Lahti: require('./config/lahti_zone_areas_20230105.json'),
+    Lahti: require('./config/lahti_zone_areas_20260507.json'),
     Kuopio: require('./config/kuopio_zone_areas_20240508.json'),
     Hameenlinna: require('./config/hml_zone_areas_20260417.json'),
     Lappeenranta: require('./config/lpr_zone_areas_20251001.json'),
