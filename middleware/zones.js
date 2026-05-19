@@ -3,12 +3,12 @@ const inside = require('point-in-polygon');
 function setup(prefix) {
 
   const regions = {
-    HSL: require('./config/hsl_zone_areas_20251013.json'),
+    HSL: require('./config/hsl_zone_areas_20190508.json'),
     tampere: require('./config/tre_zone_areas_20240108.json'),
     LINKKI: require('./config/jkl_zone_areas_20240531.json'),
-    Lahti: require('./config/lahti_zone_areas_20260507.json'),
+    Lahti: require('./config/lahti_zone_areas_20230105.json'),
     Kuopio: require('./config/kuopio_zone_areas_20240508.json'),
-    Hameenlinna: require('./config/hml_zone_areas_20260417.json'),
+    Hameenlinna: require('./config/hml_zone_areas_20230214.json'),
     Lappeenranta: require('./config/lpr_zone_areas_20251001.json'),
     OULU: require('./config/oulu_zone_areas_20241011.json'),
     Joensuu: require('./config/joensuu_zone_areas_20250402.json'),
