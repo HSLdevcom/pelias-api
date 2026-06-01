@@ -3,7 +3,7 @@ const inside = require('point-in-polygon');
 function setup(prefix) {
 
   const regions = {
-    HSL: require('./config/hsl_zone_areas_20190508.json'),
+    HSL: require('./config/hsl_zone_areas_20251013.json'),
     tampere: require('./config/tre_zone_areas_20240108.json'),
     LINKKI: require('./config/jkl_zone_areas_20240531.json'),
     Lahti: require('./config/lahti_zone_areas_20260507.json'),
