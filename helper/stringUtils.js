@@ -12,6 +12,9 @@ if (localization && localization.equalCharMap) {
 
 function normalize(s) {
   if(s) {
+    // collapse combining-mark (NFD) accents into precomposed (NFC) chars so that
+    // visually identical strings from different sources compare as equal
+    s = s.normalize('NFC');
     s = s.toLowerCase();
 
     // map chars which are considered equal

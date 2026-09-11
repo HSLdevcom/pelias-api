@@ -5,6 +5,7 @@ const field = require('../helper/fieldValue');
 const geolib = require('geolib');
 var minDistance = 200; // meters
 const decodeAddendum = require('./decode_addendum');
+const normalize = require('./stringUtils').normalize;
 
 const api = require('pelias-config').generate().api;
 
@@ -206,15 +207,28 @@ function isPropertyDifferent(item1, item2, prop ){
   const prop1 = field.getStringValue( _.get( item1, prop ) );
   const prop2 = field.getStringValue( _.get( item2, prop ) );
 
+  // an unresolved id/value (e.g. a failed admin lookup, represented as '?') is not
+  // reliable evidence that the records differ, so treat it like missing information
+  if( isUnknownValue(prop1) || isUnknownValue(prop2) ){ return false; }
+
   // compare strings
   return normalizeString(prop1) !== normalizeString(prop2);
 }
 
 /**
- * lowercase characters and remove some punctuation
+ * true if a value represents unresolved/unknown data rather than a real comparable value
+ */
+function isUnknownValue(value){
+  return value === '' || value === '?';
+}
+
+/**
+ * lowercase characters, apply the configured equalCharMap (e.g. é -> e)
+ * and remove some punctuation, so that dedupe matching stays consistent
+ * with the fuzzy matching used elsewhere for the same data
  */
 function normalizeString(str){
-  return str.toLowerCase().split(/[ ,-]+/).join(' ');
+  return normalize(str).split(/[ ,-]+/).join(' ');
 }
 
 module.exports.isDifferent = isDifferent;
