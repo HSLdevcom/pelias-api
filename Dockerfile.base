@@ -1,4 +1,4 @@
-FROM node:18-bullseye
+FROM node:22-bookworm
 
 # This dockerfile creates a base image, which contains all libpostal components.
 # The actual ci build for pelias api does not run error sensitive and
@@ -9,14 +9,30 @@ FROM node:18-bullseye
 # install libpostal
 RUN apt-get update
 RUN echo 'APT::Acquire::Retries "20";' >> /etc/apt/apt.conf
-RUN apt-get install -y --no-install-recommends git curl make libsnappy-dev autoconf automake libtool python pkg-config
+RUN apt-get install -y --no-install-recommends git curl make libsnappy-dev autoconf automake libtool python-is-python3 pkg-config
 
 RUN mkdir -p /mnt/data
 
-RUN git clone --single-branch https://github.com/openvenues/libpostal \
-  && cd libpostal \
-  && ./bootstrap.sh \
-  && ./configure --datadir=/mnt/data \
-  && make -j4 \
-  && make install \
-  && ldconfig
+# libpostal's build fetches its language model data as release assets straight from
+# github.com via several parallel curl workers; that fan-out intermittently trips
+# GitHub's abuse/rate limiting and surfaces as spurious TLS/connection errors, so retry
+# the whole clone+build+install a few times before giving up.
+RUN set -e; \
+  for i in 1 2 3 4 5; do \
+    rm -rf libpostal && \
+    git clone --single-branch https://github.com/openvenues/libpostal \
+    && cd libpostal \
+    && ./bootstrap.sh \
+    && ./configure --datadir=/mnt/data \
+    && make -j4 \
+    && make install \
+    && ldconfig \
+    && break; \
+    cd /; \
+    if [ "$i" -eq 5 ]; then \
+      echo "Failed to build libpostal after $i attempts" >&2; \
+      exit 1; \
+    fi; \
+    echo "libpostal build failed (attempt $i), retrying..." >&2; \
+    sleep 5; \
+  done
