@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const es = require('elasticsearch');
+const { errors } = require('@elastic/elasticsearch');
 const logger = require( 'pelias-logger' ).get( 'api' );
 const PeliasParameterError = require('../sanitizer/PeliasParameterError');
 
@@ -8,12 +8,12 @@ function isParameterError(error) {
 }
 
 function isTimeoutError(error) {
-  return error instanceof es.errors.RequestTimeout;
+  return error instanceof errors.TimeoutError;
 }
 
 function isElasticsearchError(error) {
-  const knownErrors = [ es.errors.NoConnections,
-                        es.errors.ConnectionFault ];
+  const knownErrors = [ errors.NoLivingConnectionsError,
+                        errors.ConnectionError ];
 
   return knownErrors.some(function(esError) {
     return error instanceof esError;

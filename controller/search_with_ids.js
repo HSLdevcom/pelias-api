@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const { errors } = require('@elastic/elasticsearch');
 
 const searchService = require('../service/search');
 const logger = require('pelias-logger').get('api');
@@ -8,7 +9,7 @@ const Debug = require('../helper/debug');
 const debugLog = new Debug('controller:search_with_ids');
 
 function isRequestTimeout(err) {
-  return _.get(err, 'status') === 408;
+  return err instanceof errors.TimeoutError || _.get(err, 'status') === 408;
 }
 
 function setup( apiConfig, esclient, query, should_execute ){

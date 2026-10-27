@@ -10,7 +10,8 @@ function service( esclient, cmd, cb ){
 
   // query elasticsearch
   const startTime = new Date();
-  esclient.search( cmd, function( err, data ){
+  esclient.search( cmd, function( err, result ){
+    const data = result && result.body;
     if (data) {
       data.response_time = new Date() - startTime;
     }

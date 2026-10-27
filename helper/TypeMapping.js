@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const elasticsearch = require('elasticsearch');
 
 var TypeMapping = function(){
 

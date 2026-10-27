@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const { errors } = require('@elastic/elasticsearch');
 const retry = require('retry');
 
 const mgetService = require('../service/mget');
@@ -11,7 +12,7 @@ function requestHasErrors(request) {
 }
 
 function isRequestTimeout(err) {
-  return _.get(err, 'status') === 408;
+  return err instanceof errors.TimeoutError || _.get(err, 'status') === 408;
 }
 
 function setup( apiConfig, esclient ){
