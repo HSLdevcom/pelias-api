@@ -281,6 +281,25 @@ function expandByLocation(docs, lang) {
   return names;
 }
 
+// Exact match first, then a parent category, for example 'food' for 'food:chinese'.
+function translateCategory(category, categoryTranslations) {
+  if (!categoryTranslations) {
+    return category;
+  }
+  if (categoryTranslations.hasOwnProperty(category)) {
+    return categoryTranslations[category];
+  }
+  var parent = category;
+  var idx;
+  while ((idx = parent.lastIndexOf(':')) !== -1) {
+    parent = parent.substring(0, idx);
+    if (categoryTranslations.hasOwnProperty(parent)) {
+      return categoryTranslations[parent];
+    }
+  }
+  return category;
+}
+
 function expandByCategory(docs, lang) {
   var names = [];
   var categoryTranslations;
@@ -294,11 +313,7 @@ function expandByCategory(docs, lang) {
     if(doc.category) {
       var extensions = [];
       doc.category.forEach(function(category) {
-        for(var cat in categoryTranslations) { // use translation defined terms if available
-          if(category.search(cat) !== -1) { // partial match, for example 'food' in 'food:chinese'
-            category = categoryTranslations[cat];
-          }
-        }
+        category = translateCategory(category, categoryTranslations);
         if(extensions.indexOf(category) === -1) { // not yet added
           extensions.push(category);
         }

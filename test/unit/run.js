@@ -39,6 +39,7 @@ var tests = [
   require('./helper/geojsonify'),
   require('./helper/iso3166'),
   require('./helper/logging'),
+  require('./helper/nameExpansions'),
   require('./helper/TypeMapping'),
   require('./helper/type_mapping'),
   require('./helper/stackTraceLine'),
