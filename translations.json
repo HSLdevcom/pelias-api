@@ -5335,11 +5335,14 @@
       "accommodation": "hotell",
       "recreation": "rekreation",
       "nightlife": "nattliv",
-      "professional": "professionell",
+      "professional": "tjänster",
       "finance": "finans",
+      "industry:agriculture": "lantbruk",
       "industry": "industri",
       "transport": "transport",
       "education": "utbildning",
+      "historic": "historiskt objekt",
+      "culture": "kultur",
       "religion": "religion",
       "government": "regering",
       "natural": "natur",
@@ -5567,10 +5570,13 @@
       "accommodation": "majoitus",
       "recreation": "virkistys",
       "nightlife": "yöelämä",
-      "professional": "ammatillinen",
+      "professional": "palvelu",
       "finance": "talous",
+      "industry:agriculture": "maatalous",
       "industry": "teollisuus",
-      "education": "oppilaitos",
+      "education": "koulutus",
+      "historic": "historiallinen kohde",
+      "culture": "kulttuuri",
       "religion": "uskonto",
       "transport": "liikenne",
       "government": "hallinto",
@@ -5750,6 +5756,17 @@
       "southeast": "kaakkoinen",
       "southwest": "lounainen",
       "central": "keskinen"
+    }
+  },
+  "en": {
+    "__category": {
+      "industry:agriculture": "farming",
+      "professional": "services",
+      "historic": "historic site",
+      "transport": "transport",
+      "food": "food",
+      "natural": "natural",
+      "government": "government"
     }
   },
   "se": {
