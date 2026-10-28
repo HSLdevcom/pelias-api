@@ -27,6 +27,11 @@ function esClientOptions(esclient) {
   if (config.maxRetries !== undefined) {
     options.maxRetries = config.maxRetries;
   }
+  // the new client keeps connections alive by default, the legacy one was
+  // explicitly configured with keepAlive: false in production
+  if (config.keepAlive === false) {
+    options.agent = { keepAlive: false };
+  }
   return options;
 }
 

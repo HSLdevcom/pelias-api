@@ -34,6 +34,7 @@ var tests = [
   require('./controller/predicates/is_request_sources_undefined'),
   require('./helper/debug'),
   require('./helper/diffPlaces'),
+  require('./helper/esClientOptions'),
   require('./helper/fieldValue'),
   require('./helper/geojsonify_place_details'),
   require('./helper/geojsonify'),
