@@ -39,11 +39,11 @@
     "node": ">=10.0.0"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^7.17.14",
     "@mapbox/geojson-extent": "^0.3.1",
     "addressit": "1.6.0",
     "async": "^3.2.6",
     "check-types": "^7.0.0",
-    "elasticsearch": "^16.7.3",
     "express": "^4.17.2",
     "geojson": "^0.5.0",
     "geolib": "^3.0.0",
@@ -63,14 +63,14 @@
     "pelias-parser": "1.38.0",
     "pelias-query": "github:hsldevcom/query",
     "pelias-sorting": "^1.2.0",
+    "pelias-text-analyzer": "github:hsldevcom/pelias-text-analyzer",
+    "point-in-polygon": "1.0.1",
     "predicates": "^2.0.0",
     "regenerate": "^1.4.0",
     "retry": "^0.13.1",
     "stable": "^0.1.8",
     "stats-lite": "^2.0.4",
-    "pelias-text-analyzer": "github:hsldevcom/pelias-text-analyzer",
-    "through2": "^4.0.2",
-    "point-in-polygon": "1.0.1"
+    "through2": "^4.0.2"
   },
   "devDependencies": {
     "ciao": "^2.0.0",

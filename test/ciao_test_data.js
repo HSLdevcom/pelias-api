@@ -11,9 +11,9 @@
 
 // we use the default config to avoid making calls to
 // a cluster running on a non-standard port.
-var client = require('elasticsearch').Client(),
-    async = require('async'),
-    actions = [];
+const { Client } = require('@elastic/elasticsearch');
+const client = new Client({ node: 'http://localhost:9200' });
+const actions = [];
 var config = require('pelias-config').generate().api;
 
 // add one record per 'type' in order to cause the _default_ mapping
@@ -26,8 +26,8 @@ var types = ['venue','address','county','region','county','country','admin0','ad
 types.forEach( function( type, i1 ){
   sources.forEach( function( source, i2 ){
     layers.forEach( function( layer, i3 ){
-      actions.push( function( done ){
-        client.index({
+      actions.push( function(){
+        return client.index({
           index: config.indexName,
           type: type,
           id: [i1,i2,i3].join(':'),
@@ -41,13 +41,12 @@ types.forEach( function( type, i1 ){
             }
           }
         });
-        done();
       });
     });
   });
 });
 
-client.index(
+actions.push( function(){ return client.index(
   {
     index: config.indexName,
     type: 'address',
@@ -125,14 +124,14 @@ client.index(
       'layer': 'address'
     }
   }
-);
+); });
 
 // call refresh so the index merges the changes
-actions.push( function( done ){
-  client.indices.refresh( { index: config.indexName }, done);
+actions.push( function(){
+  return client.indices.refresh( { index: config.indexName } );
 });
 
 // perform all actions in series
-async.series( actions, function( err, resp ){
-  console.log('test data imported');
-});
+actions.reduce( ( chain, action ) => chain.then( action ), Promise.resolve() )
+  .then( function(){ console.log('test data imported'); } )
+  .catch( function( err ){ console.error( err ); process.exit( 1 ); } );

@@ -129,7 +129,7 @@ module.exports.tests.success_conditions = (test, common) => {
           ]
         };
 
-        callback(undefined, data);
+        callback(undefined, { body: data });
 
       }
     };
@@ -233,7 +233,7 @@ module.exports.tests.success_conditions = (test, common) => {
           docs: 'this isn\'t an array'
         };
 
-        callback(undefined, data);
+        callback(undefined, { body: data });
 
       }
     };

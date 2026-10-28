@@ -23,7 +23,8 @@ function service( esclient, query, cb ){
 
   // query elasticsearch
   const startTime = new Date();
-  esclient.mget( cmd, function( err, data ){
+  esclient.mget( cmd, function( err, result ){
+    const data = result && result.body;
     if (data) {
       data.response_time = new Date() - startTime;
     }

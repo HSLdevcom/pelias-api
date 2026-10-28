@@ -1,5 +1,6 @@
 var Router = require('express').Router;
-var elasticsearch = require('elasticsearch');
+const { Client } = require('@elastic/elasticsearch');
+const esClientOptions = require('../helper/esClientOptions');
 
 const all = require('predicates').all;
 const any = require('predicates').any;
@@ -118,7 +119,7 @@ const Libpostal = require('../service/configurations/Libpostal');
  * @param {object} peliasConfig
  */
 function addRoutes(app, peliasConfig) {
-  const esclient = elasticsearch.Client(peliasConfig.esclient);
+  const esclient = new Client(esClientOptions(peliasConfig.esclient));
 
   const pipConfiguration = new PointInPolygon(_.defaultTo(peliasConfig.api.services.pip, {}));
   const pipService = serviceWrapper(pipConfiguration);

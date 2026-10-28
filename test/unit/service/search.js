@@ -116,7 +116,7 @@ module.exports.tests.success_conditions = (test, common) => {
           }
         };
 
-        callback(undefined, data);
+        callback(undefined, { body: data });
 
       }
     };
@@ -220,7 +220,7 @@ module.exports.tests.success_conditions = (test, common) => {
           }
         };
 
-        callback(undefined, data);
+        callback(undefined, { body: data });
 
       }
     };
@@ -285,7 +285,7 @@ module.exports.tests.success_conditions = (test, common) => {
           }
         };
 
-        callback(undefined, data);
+        callback(undefined, { body: data });
 
       }
     };
@@ -332,7 +332,7 @@ module.exports.tests.success_conditions = (test, common) => {
           }
         };
 
-        callback(undefined, data);
+        callback(undefined, { body: data });
 
       }
     };
