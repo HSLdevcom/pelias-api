@@ -9,6 +9,12 @@
         "protocol": "http",
         "host": "pelias-data-container",
         "port": 9200
+      },
+      {
+        "env": "production",
+        "protocol": "http",
+        "host": "pelias-data-container",
+        "port": 9300
       }
     ]
   },
