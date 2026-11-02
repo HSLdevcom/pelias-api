@@ -3,7 +3,14 @@ set -e
 
 API="pelias-api"
 DOCKER_IMAGE="hsldevcom/$API"
-DOCKER_TAG="latest"
+
+# master is published as "latest", other branches (e.g. hotfix) under their branch name
+BRANCH=${GITHUB_REF_NAME:-master}
+if [ "$BRANCH" = "master" ]; then
+    DOCKER_TAG="latest"
+else
+    DOCKER_TAG="$BRANCH"
+fi
 
 COMMIT_HASH=$(git rev-parse --short "$GITHUB_SHA")
 
