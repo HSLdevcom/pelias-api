@@ -56,17 +56,13 @@ const DETAILS_PROPS = [
   { name: 'marinearea_a',      type: 'string' },
   { name: 'bounding_box',      type: 'default' },
   { name: 'label',             type: 'string' },
-  { name: 'category',          type: 'array',     condition: checkCategoryParam },
+  { name: 'category',          type: 'array' },
   { name: 'zones',             type: 'array' }
 ];
 
 // returns true IFF source a country_gid property
 function hasCountry(params, source) {
   return source.hasOwnProperty('country_gid');
-}
-
-function checkCategoryParam(params) {
-  return _.isObject(params) && params.hasOwnProperty('categories');
 }
 
 /**
