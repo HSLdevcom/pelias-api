@@ -475,57 +475,22 @@ module.exports.tests.geojsonify_place_details = (test, common) => {
 
   });
 
-  test('category property should be output when params contains \'category\' property', t => {
-    [ {a: 1}, 'this is a string'].forEach(value => {
-      const source = {
-        category: value
-      };
-      const expected = {
-        category: [ value ]
-      };
+  test('category property should be output regardless of the categories param', t => {
+    [ {}, { categories: true }, 'this is not an object' ].forEach(clean => {
+      [ {a: 1}, 'this is a string'].forEach(value => {
+        const source = {
+          category: value
+        };
+        const expected = {
+          category: [ value ]
+        };
 
-      const clean = {
-        categories: true
-      };
+        const actual = geojsonify(clean, source);
 
-      const actual = geojsonify(clean, source);
-
-      t.deepEqual(actual, expected);
-
+        t.deepEqual(actual, expected);
+      });
     });
 
-    t.end();
-
-  });
-
-  test('category property should not be output when params does not contain \'category\' property', t => {
-    const source = {
-      category: [ 1, 2 ]
-    };
-    const expected = {
-    };
-
-    const clean = {};
-
-    const actual = geojsonify(clean, source);
-
-    t.deepEqual(actual, expected);
-    t.end();
-
-  });
-
-  test('category property should not be output when params is not an object', t => {
-    const source = {
-      category: [ 1, 2 ]
-    };
-    const expected = {
-    };
-
-    const clean = 'this is not an object';
-
-    const actual = geojsonify(clean, source);
-
-    t.deepEqual(actual, expected);
     t.end();
 
   });
