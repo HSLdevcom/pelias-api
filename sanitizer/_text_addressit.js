@@ -13,7 +13,7 @@
 **/
 
 
-const addressit = require('addressit');
+const addressit = require('addressit/index.js'); // package.json 'main' is invalid in 1.6.0
 const _      = require('lodash');
 const logger = require('pelias-logger').get('api');
 var check = require('check-types');
