@@ -12,7 +12,7 @@ function setup(prefix) {
     Lappeenranta: require('./config/lpr_zone_areas_20251001.json'),
     OULU: require('./config/oulu_zone_areas_20241011.json'),
     Joensuu: require('./config/joensuu_zone_areas_20250402.json'),
-    Vaasa: require('./config/vaasa_zone_lines_20231220.json'),
+    Vaasa: require('./config/vaasa_zone_areas_20261013.json'),
     Kotka: require('./config/kotka_zone_areas_20250114.json'),
     Mikkeli: require('./config/mikkeli_zone_areas_20260122.json')
   };
