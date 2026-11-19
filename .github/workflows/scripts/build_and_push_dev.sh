@@ -16,8 +16,7 @@ echo Building pelias-api
 docker build --tag="$DOCKER_IMAGE_TAG_LONG" .
 docker run --name $API -p 3100:8080 --rm $DOCKER_IMAGE_TAG_LONG &
 sleep 20
-HOST=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $API)
-STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://$HOST:8080/v1)
+STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3100/v1)
 docker stop $API
 
 if [ $STATUS_CODE = 200 ]; then
