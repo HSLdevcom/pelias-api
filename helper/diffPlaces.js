@@ -149,26 +149,18 @@ function isAddressDifferent(item1, item2){
 
 /**
  * Compare the geographic locations
- * Returns false if the objects are close enough, and throws
- * an exception with the message 'different' if not.
+ * Returns true if the distance between the items exceeds the dedupe threshold,
+ * else false.
  *
  * @param {object} item1
  * @param {object} item2
  * @returns {boolean}
- * @throws {Error}
  */
 function isLocationDifferent(item1, item2) {
-
-  if(item1._type !== 'address' || item2._type !== 'address') {
-    /* in explicit address case, location difference is most likely a data error */
-    if(item1.center_point && item2.center_point) {
-      const p1 = { latitude: item1.center_point.lat, longitude: item1.center_point.lon };
-      const p2 = { latitude: item2.center_point.lat, longitude: item2.center_point.lon };
-      const distance = geolib.getDistance( p1, p2 );
-      if( distance > minDistance) {
-        return true;
-      }
-    }
+  if(item1.center_point && item2.center_point) {
+    const p1 = { latitude: item1.center_point.lat, longitude: item1.center_point.lon };
+    const p2 = { latitude: item2.center_point.lat, longitude: item2.center_point.lon };
+    return geolib.getDistance( p1, p2 ) > minDistance;
   }
   return false;
 }
