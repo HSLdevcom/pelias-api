@@ -1,9 +1,6 @@
 var _ = require('lodash');
 var labelGenerator = require('../helper/labelGenerator');
 var nameExpansions = require('../helper/nameExpansions');
-var geolib = require('geolib');
-var differenceReason = require('../helper/diffPlaces').differenceReason;
-var placeTypes = require('../helper/placeTypes');
 var logger = require('pelias-logger').get('api:label');
 
 /* A very much client specific option to consider the layer as a separating factor
@@ -62,13 +59,6 @@ function addLabels(req, res, next) {
         j++;
       }
     }
-    if (layer === 'address' && current.length > 1) {
-      var identical = [];
-      for (var ii = 0; ii < current.length; ii++) {
-        identical.push(data[current[ii]]);
-      }
-      logIdenticalAddresses(req, identical);
-    }
     for(var exp = 0; exp < nameExpansions.length; exp++) {
       len = current.length;
 
@@ -111,52 +101,6 @@ function addLabels(req, res, next) {
   }
 
   next();
-}
-
-// Diagnostics: several address results survived dedupe with identical labels.
-// Log the request and why dedupe regarded the results as different.
-function logIdenticalAddresses(req, docs) {
-  var clean = req.clean || {};
-  var summarize = function(doc) {
-    var parentIds = {};
-    placeTypes.forEach(function(type) {
-      var ids = _.get(doc, ['parent', type + '_id']);
-      if (!_.isUndefined(ids)) {
-        parentIds[type] = ids;
-      }
-    });
-    return {
-      id: doc._id,
-      center: doc.center_point,
-      zip: _.get(doc, 'address_parts.zip'),
-      popularity: doc.popularity,
-      parentIds: parentIds
-    };
-  };
-  var pairs = [];
-  var shown = docs.slice(0, 5);
-  for (var a = 0; a < shown.length; a++) {
-    for (var b = a + 1; b < shown.length; b++) {
-      var meters = null;
-      if (shown[a].center_point && shown[b].center_point) {
-        meters = geolib.getDistance(
-          { latitude: shown[a].center_point.lat, longitude: shown[a].center_point.lon },
-          { latitude: shown[b].center_point.lat, longitude: shown[b].center_point.lon });
-      }
-      pairs.push({
-        ids: [shown[a]._id, shown[b]._id],
-        distance: meters,
-        reason: differenceReason(shown[a], shown[b], clean.dedupestops)
-      });
-    }
-  }
-  logger.warn('[identical address labels]', JSON.stringify({
-    request: _.pick(clean, ['text', 'size', 'layers', 'sources', 'lang', 'dedupestops',
-      'focus.point.lat', 'focus.point.lon']),
-    label: docs[0].label,
-    docs: shown.map(summarize),
-    pairs: pairs
-  }));
 }
 
 function differentArrayItems(arr) {

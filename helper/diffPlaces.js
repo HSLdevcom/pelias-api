@@ -166,26 +166,19 @@ function isLocationDifferent(item1, item2) {
 }
 
 /**
- * Compare the two records and return the name of the first check that tells
- * them apart, or null if they are the same.
- */
-function differenceReason(item1, item2, dedupestops){
-  if( isLayerDifferent( item1, item2 ) ){ return 'layer'; }
-  if( isParentHierarchyDifferent( item1, item2 ) ){ return 'parent'; }
-  if( isNameDifferent( item1, item2 ) ){ return 'name'; }
-  if( isAddressDifferent( item1, item2 ) ){ return 'address'; }
-  if( isLocationDifferent( item1, item2 ) ){ return 'location'; }
-  if( !dedupestops && isStopSourceDifferent( item1, item2 ) ){ return 'stopSource'; }
-  if( isStopPlatformDifferent( item1, item2 ) ){ return 'stopPlatform'; }
-
-  return null;
-}
-
-/**
  * Compare the two records and return true if they differ and false if same.
  */
+
 function isDifferent(item1, item2, dedupestops){
-  return differenceReason(item1, item2, dedupestops) !== null;
+  if( isLayerDifferent( item1, item2 ) ){ return true; }
+  if( isParentHierarchyDifferent( item1, item2 ) ){ return true; }
+  if( isNameDifferent( item1, item2 ) ){ return true; }
+  if( isAddressDifferent( item1, item2 ) ){ return true; }
+  if( isLocationDifferent( item1, item2 ) ){ return true; }
+  if( !dedupestops && isStopSourceDifferent( item1, item2 ) ){ return true; }
+  if( isStopPlatformDifferent( item1, item2 ) ){ return true; }
+
+  return false;
 }
 
 /**
@@ -231,4 +224,3 @@ function normalizeString(str){
 }
 
 module.exports.isDifferent = isDifferent;
-module.exports.differenceReason = differenceReason;

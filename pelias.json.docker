@@ -13,7 +13,7 @@
     ]
   },
   "logger": {
-    "level": "warn"
+    "level": ["error", "warning"]
   },
   "acceptance-tests": {
     "endpoints": {
